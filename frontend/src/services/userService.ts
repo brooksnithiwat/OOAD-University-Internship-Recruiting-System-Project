@@ -1,4 +1,4 @@
-import { api } from './api';
+import * as api from './api';
 
 export type User = {
   id: number;
@@ -12,12 +12,10 @@ export type CreateUserPayload = {
   name?: string;
 };
 
-export async function getUsers(): Promise<User[]> {
-  const response = await api.get<User[]>('/users');
-  return response.data;
-}
+export const getUsers = async (): Promise<User[]> => {
+  return api.get<User[]>('/users');
+};
 
-export async function createUser(payload: CreateUserPayload): Promise<User> {
-  const response = await api.post<User>('/users', payload);
-  return response.data;
-}
+export const createUser = async (payload: CreateUserPayload): Promise<User> => {
+  return api.post<User>('/users', payload);
+};

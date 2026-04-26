@@ -1,0 +1,160 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthForm } from '@/hooks/useAuthForm';
+import { validateRegister } from '@/lib/validation';
+import { register } from '@/services/authService';
+import { isApiError } from '@/services/authService';
+import type { RegisterData } from '@/types/auth';
+
+export const RegisterPage = () => {
+  const navigate = useNavigate();
+  const { formValues, formErrors, isLoading, setIsLoading, handleChange, setErrors } =
+    useAuthForm<RegisterData>({
+      fullName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+  const [apiError, setApiError] = useState<string>('');
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setApiError('');
+
+    const validationErrors = validateRegister(formValues);
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await register(formValues);
+      navigate('/login');
+    } catch (error) {
+      if (isApiError(error)) {
+        setApiError(error.message || 'Registration failed');
+      } else {
+        setApiError('An unexpected error occurred');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex justify-center items-center bg-white px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md border border-blue-200 rounded-lg shadow-sm p-8 sm:p-10">
+        <h1 className="text-3xl font-bold text-center text-dark-blue mb-2 font-castoro">
+          Create Account
+        </h1>
+        <p className="text-center text-gray-600 mb-8">Register a new account</p>
+
+        <div className="flex gap-2 mb-6">
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="flex-1 py-2 px-4 font-medium rounded-lg transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200"
+          >
+            Login
+          </button>
+          <button
+            type="button"
+            className="flex-1 py-2 px-4 font-medium rounded-lg transition-colors bg-blue-600 text-white"
+          >
+            Register
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {apiError && (
+            <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+              {apiError}
+            </div>
+          )}
+          <div className="mb-4">
+            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+              Full Name
+            </label>
+            <input
+              id="fullName"
+              type="text"
+              name="fullName"
+              value={formValues.fullName}
+              placeholder="John Doe"
+              onChange={handleChange}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                formErrors.fullName ? 'border-red-500' : 'border-gray-300'
+              }`}
+            />
+            {formErrors.fullName && (
+              <p className="text-red-500 text-sm mt-1">{formErrors.fullName}</p>
+            )}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              value={formValues.email}
+              placeholder="you@example.com"
+              onChange={handleChange}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                formErrors.email ? 'border-red-500' : 'border-gray-300'
+              }`}
+            />
+            {formErrors.email && <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              value={formValues.password}
+              placeholder="••••••••"
+              onChange={handleChange}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                formErrors.password ? 'border-red-500' : 'border-gray-300'
+              }`}
+            />
+            {formErrors.password && (
+              <p className="text-red-500 text-sm mt-1">{formErrors.password}</p>
+            )}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              Confirm Password
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              name="confirmPassword"
+              value={formValues.confirmPassword}
+              placeholder="••••••••"
+              onChange={handleChange}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                formErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+              }`}
+            />
+            {formErrors.confirmPassword && (
+              <p className="text-red-500 text-sm mt-1">{formErrors.confirmPassword}</p>
+            )}
+          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+          >
+            {isLoading ? 'Registering...' : 'Register'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
