@@ -4,6 +4,7 @@ import { useAuthForm } from '@/hooks/useAuthForm';
 import { validateStudentRegister, validateEmployerRegister } from '@/lib/validation';
 import { registerStudent, registerEmployer, isApiError } from '@/services/authService';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import type { StudentRegisterData, EmployerRegisterData } from '@/types/auth';
 
 type RegisterMode = 'student' | 'employer';
@@ -43,6 +44,8 @@ export const RegisterPage = () => {
   const navigate = useNavigate();
   const [mode, setMode] = useState<RegisterMode>('student');
   const [apiError, setApiError] = useState<string>('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState({ title: '', message: '' });
 
   const studentForm = useAuthForm<StudentRegisterData>({
     email: '',
@@ -81,7 +84,11 @@ export const RegisterPage = () => {
     studentForm.setIsLoading(true);
     try {
       await registerStudent(studentForm.formValues);
-      navigate('/');
+      setSuccessMessage({
+        title: 'Student Registration Successful',
+        message: 'Your account has been created. Your eligibility status is set to PENDING and will be reviewed by the University Coordinator.',
+      });
+      setShowSuccessModal(true);
     } catch (error) {
       if (isApiError(error)) {
         setApiError(error.message || 'Student registration failed');
@@ -106,7 +113,11 @@ export const RegisterPage = () => {
     employerForm.setIsLoading(true);
     try {
       await registerEmployer(employerForm.formValues);
-      navigate('/');
+      setSuccessMessage({
+        title: 'Employer Registration Successful',
+        message: 'Your company account has been created. Your account is currently unverified and will be reviewed by the system administrator.',
+      });
+      setShowSuccessModal(true);
     } catch (error) {
       if (isApiError(error)) {
         setApiError(error.message || 'Employer registration failed');
@@ -160,13 +171,7 @@ export const RegisterPage = () => {
             >
               Employer
             </button>
-            <button
-              type="button"
-              onClick={() => navigate('/login')}
-              className="flex-1 py-2.5 px-4 font-medium text-sm text-gray-600 rounded-md hover:text-gray-900 transition-all"
-            >
-              Sign In
-            </button>
+
           </div>
 
           {mode === 'student' && (
@@ -446,6 +451,16 @@ export const RegisterPage = () => {
           Sign in here
         </button>
       </p>
+
+      <SuccessModal
+        isOpen={showSuccessModal}
+        title={successMessage.title}
+        message={successMessage.message}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigate('/login');
+        }}
+      />
     </div>
   );
 };

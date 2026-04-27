@@ -4,7 +4,14 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   isLoading?: boolean;
 };
 
-export const Button = ({ children, variant = 'primary', isLoading, disabled, ...props }: ButtonProps) => {
+export const Button = ({
+  children,
+  variant = 'primary',
+  isLoading,
+  disabled,
+  className,
+  ...props
+}: ButtonProps) => {
   const baseStyles = 'font-medium py-2 px-4 rounded-lg transition-colors';
   const primaryStyles = 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400';
   const secondaryStyles = 'bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:bg-gray-300';
@@ -12,7 +19,11 @@ export const Button = ({ children, variant = 'primary', isLoading, disabled, ...
   const variantStyles = variant === 'primary' ? primaryStyles : secondaryStyles;
 
   return (
-    <button disabled={disabled || isLoading} className={`${baseStyles} ${variantStyles}`} {...props}>
+    <button
+      disabled={disabled || isLoading}
+      className={`${baseStyles} ${variantStyles} ${className || ''}`}
+      {...props}
+    >
       {isLoading ? 'Loading...' : children}
     </button>
   );
