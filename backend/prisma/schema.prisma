@@ -8,9 +8,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  STUDENT
+  EMPLOYER
+  UNIVERSITY_COORDINATOR
+  DEPARTMENT_HEAD
+  SYSTEM_ADMINISTRATOR
+}
+
+enum EligibilityStatus {
+  ELIGIBLE
+  PENDING
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
+  userId       String    @id @default(uuid()) @map("user_id")
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         Role
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  student   Student?
+  employer  Employer?
+
+  @@map("users")
+}
+
+model Student {
+  studentId         String            @id @default(uuid()) @map("student_id")
+  userId            String            @unique @map("user_id")
+  studentCode       String            @unique @map("student_code")
+  firstName         String            @map("first_name")
+  lastName          String            @map("last_name")
+  gpa               Decimal           @db.Decimal(3, 2)
+  faculty           String?
+  department        String?
+  academicYear      Int               @map("academic_year")
+  eligibilityStatus EligibilityStatus @default(PENDING) @map("eligibility_status")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("students")
+}
+
+model Employer {
+  employerId   String   @id @default(uuid()) @map("employer_id")
+  userId       String   @unique @map("user_id")
+  companyName  String   @map("company_name")
+  industry     String?
+  website      String?
+  contactName  String?  @map("contact_name")
+  contactPhone String?  @map("contact_phone")
+  isVerified   Boolean  @default(false) @map("is_verified")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("employers")
 }

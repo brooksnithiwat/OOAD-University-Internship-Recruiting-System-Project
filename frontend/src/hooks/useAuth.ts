@@ -1,25 +1,28 @@
 import { useState, useCallback } from 'react';
-import { getUser, getToken, clearAuth } from '@/services/authService';
-import type { User } from '@/types/auth';
+import { getToken, getUserRole, getUserId, clearAuth } from '@/services/authService';
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(getUser());
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!getToken());
+  const [userRole, setUserRole] = useState<string | null>(getUserRole());
+  const [userId, setUserId] = useState<string | null>(getUserId());
 
   const logout = useCallback(() => {
     clearAuth();
-    setUser(null);
     setIsAuthenticated(false);
+    setUserRole(null);
+    setUserId(null);
   }, []);
 
-  const setAuthenticatedUser = useCallback((newUser: User) => {
-    setUser(newUser);
+  const setAuthenticatedUser = useCallback((role: string, userId: string) => {
+    setUserRole(role);
+    setUserId(userId);
     setIsAuthenticated(true);
   }, []);
 
   return {
-    user,
     isAuthenticated,
+    userRole,
+    userId,
     logout,
     setAuthenticatedUser,
   };

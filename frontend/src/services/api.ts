@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import type { ApiErrorData } from '@/types/api';
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export class ApiError extends Error {
   name = 'ApiError';
@@ -31,6 +31,7 @@ axiosInstance.interceptors.request.use((config) => {
 export const post = async <T,>(url: string, data: unknown): Promise<T> => {
   try {
     const response = await axiosInstance.post<T>(url, data);
+    console.log(`📡 POST ${url} - Status: ${response.status}`);
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError;
@@ -43,6 +44,7 @@ export const post = async <T,>(url: string, data: unknown): Promise<T> => {
 export const get = async <T,>(url: string): Promise<T> => {
   try {
     const response = await axiosInstance.get<T>(url);
+    console.log(`📡 GET ${url} - Status: ${response.status}`);
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError;
