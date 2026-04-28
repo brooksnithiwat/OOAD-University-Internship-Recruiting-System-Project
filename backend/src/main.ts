@@ -12,8 +12,14 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
-  app.enableCors();
+  
+   const frontendUrl = process.env.FRONTEND_URL;
+  app.enableCors({
+  origin: frontendUrl,
+  credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+});
 
   const port = process.env.PORT || 3000;
   await app.listen(port, () => {

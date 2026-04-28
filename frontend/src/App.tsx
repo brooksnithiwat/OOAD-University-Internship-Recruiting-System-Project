@@ -1,10 +1,17 @@
+import { useAuth } from './contexts/auth';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
-import { useAuth } from '@/hooks/useAuth';
+import { JobBoardPage } from '@/pages/JobBoardPage';
+import { JobDetailPage } from '@/pages/JobDetailPage';
+import { CreateJobPage } from '@/pages/CreateJobPage';
 
 const HomePage = () => {
   const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-white">
@@ -12,7 +19,7 @@ const HomePage = () => {
         <h1 className="text-4xl font-bold text-dark-blue mb-4 font-castoro">Welcome</h1>
         <p className="text-gray-600 mb-6">You are successfully authenticated.</p>
         <button
-          onClick={logout}
+          onClick={handleLogout}
           className="bg-blue-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors"
         >
           Logout
@@ -22,16 +29,53 @@ const HomePage = () => {
   );
 };
 
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useAuth();
+  const isAuthenticated = !!user;
+
+  if (isLoading) {
+    return <div className="min-h-screen flex justify-center items-center">Loading...</div>;
+  }
+
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
 export const App = () => {
-  const { isAuthenticated } = useAuth();
+  const { user, isLoading } = useAuth();
+  const isAuthenticated = !!user;
+
+  if (isLoading) {
+    return <div className="min-h-screen flex justify-center items-center">Loading...</div>;
+  }
 
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/" element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />} />
       <Route
-        path="/"
-        element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />}
+        path="/jobs"
+        element={
+          <PrivateRoute>
+            <JobBoardPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/jobs/create"
+        element={
+          <PrivateRoute>
+            <CreateJobPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/jobs/:id"
+        element={
+          <PrivateRoute>
+            <JobDetailPage />
+          </PrivateRoute>
+        }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

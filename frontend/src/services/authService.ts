@@ -1,10 +1,7 @@
 import * as api from './api';
 import type { ApiError } from './api';
 import type { User, LoginCredentials, StudentRegisterData, EmployerRegisterData, AuthResponse } from '@/types/auth';
-
-const TOKEN_KEY = 'AUTH_TOKEN';
-const USER_ROLE_KEY = 'USER_ROLE';
-const USER_ID_KEY = 'USER_ID';
+import { authStorage } from '@/contexts/auth';
 
 export const isApiError = (error: unknown): error is ApiError => {
   return error instanceof Error && error.name === 'ApiError';
@@ -66,9 +63,14 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     const response = await api.post<AuthResponse>('/auth/login', credentials);
     console.log('✅ Login response received:', response);
 
-    localStorage.setItem(TOKEN_KEY, response.accessToken);
-    localStorage.setItem(USER_ROLE_KEY, response.role);
-    localStorage.setItem(USER_ID_KEY, response.userId);
+    // Storage is now handled by AuthProvider through authContext.login()
+    // But we'll also save here for axios interceptor
+    authStorage.setToken(response.accessToken);
+    authStorage.setUserRole(response.role);
+    authStorage.setUserId(response.userId);
+    if (response.email) {
+      authStorage.setUserEmail(response.email);
+    }
 
     return response;
   } catch (error) {
@@ -80,15 +82,19 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
 };
 
 export const getToken = (): string | null => {
-  return localStorage.getItem(TOKEN_KEY);
+  return authStorage.getToken();
 };
 
 export const getUserRole = (): string | null => {
-  return localStorage.getItem(USER_ROLE_KEY);
+  return authStorage.getUserRole();
 };
 
 export const getUserId = (): string | null => {
-  return localStorage.getItem(USER_ID_KEY);
+  return authStorage.getUserId();
+};
+
+export const getUserEmail = (): string | null => {
+  return authStorage.getUserEmail();
 };
 
 export const getProfile = async (): Promise<User | null> => {
@@ -104,8 +110,6 @@ export const getProfile = async (): Promise<User | null> => {
 };
 
 export const clearAuth = (): void => {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(USER_ROLE_KEY);
-  localStorage.removeItem(USER_ID_KEY);
+  authStorage.clearAll();
 };
 

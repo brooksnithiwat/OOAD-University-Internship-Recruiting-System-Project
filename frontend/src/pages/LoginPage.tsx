@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/auth';
 import { useAuthForm } from '@/hooks/useAuthForm';
 import { validateLogin } from '@/lib/validation';
 import { login } from '@/services/authService';
@@ -8,6 +9,7 @@ import type { LoginCredentials } from '@/types/auth';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
+  const authContext = useAuth();
   const { formValues, formErrors, isLoading, setIsLoading, handleChange, setErrors } =
     useAuthForm<LoginCredentials>({
       email: '',
@@ -27,8 +29,18 @@ export const LoginPage = () => {
 
     setIsLoading(true);
     try {
-      await login(formValues);
-      navigate('/');
+      const response = await login(formValues);
+
+      authContext.login(
+        {
+          userId: response.userId,
+          email: response.email,
+          role: response.role as any,
+        },
+        response.accessToken,
+      );
+
+      navigate('/jobs');
     } catch (error) {
       if (isApiError(error)) {
         setApiError(error.message || 'Login failed');

@@ -124,6 +124,7 @@ export class AuthService {
       accessToken,
       role: user.role,
       userId: user.userId,
+      email: user.email,
     };
   }
 

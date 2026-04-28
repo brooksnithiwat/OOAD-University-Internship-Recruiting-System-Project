@@ -68,6 +68,7 @@ export type AuthResponse = {
   accessToken: string;
   role: string;
   userId: string;
+  email?: string;
 };
 
 export type RegisterResponse = {
