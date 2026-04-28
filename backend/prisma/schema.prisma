@@ -66,8 +66,41 @@ model Employer {
   isVerified   Boolean  @default(false) @map("is_verified")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
-
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
-
+  jobPosts JobPost[]
   @@map("employers")
+}
+enum JobPostStatus {
+  ACTIVE
+  CLOSED
+  DRAFT
+}
+
+model JobPost {
+  jobId               String        @id @default(uuid()) @map("job_id")
+  employerId          String        @map("employer_id")
+  title               String
+  description         String
+  location            String?
+  minGpa              Decimal       @default(0.00) @db.Decimal(3, 2) @map("min_gpa")
+  durationWeeks       Int           @map("duration_weeks")
+  applicationDeadline DateTime      @map("application_deadline") @db.Date
+  status              JobPostStatus @default(ACTIVE)
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt @map("updated_at")
+
+  employer   Employer       @relation(fields: [employerId], references: [employerId], onDelete: Cascade)
+  skills     JobPostSkill[]
+
+  @@map("job_posts")
+}
+
+model JobPostSkill {
+  jobId String @map("job_id")
+  skill String
+
+  jobPost JobPost @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
+
+  @@id([jobId, skill])
+  @@map("job_post_skills")
 }
