@@ -120,11 +120,21 @@ export class AuthService {
       secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
     });
 
+    // Get GPA for students
+    let gpa: number | undefined;
+    if (user.role === Role.STUDENT) {
+      const student = await this.studentsService.findByUserId(user.userId);
+      if (student) {
+        gpa = student.gpa;
+      }
+    }
+
     return {
       accessToken,
       role: user.role,
       userId: user.userId,
       email: user.email,
+      gpa,
     };
   }
 

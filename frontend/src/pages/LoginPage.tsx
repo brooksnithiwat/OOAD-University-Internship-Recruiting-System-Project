@@ -36,6 +36,7 @@ export const LoginPage = () => {
           userId: response.userId,
           email: response.email,
           role: response.role as any,
+          gpa: response.gpa,
         },
         response.accessToken,
       );

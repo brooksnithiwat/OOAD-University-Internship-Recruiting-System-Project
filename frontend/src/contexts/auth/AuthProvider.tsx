@@ -17,14 +17,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const storedRole = authStorage.getUserRole();
     const storedUserId = authStorage.getUserId();
     const storedEmail = authStorage.getUserEmail();
+    const storedGpa = authStorage.getUserGpa();
 
-    console.log('🔍 AuthProvider init - Token:', !!storedToken, 'Role:', storedRole, 'UserId:', storedUserId, 'Email:', storedEmail);
+    console.log('🔍 AuthProvider init - Token:', !!storedToken, 'Role:', storedRole, 'UserId:', storedUserId, 'Email:', storedEmail, 'GPA:', storedGpa);
 
     if (storedToken && storedRole && storedUserId) {
       setUser({
         userId: storedUserId,
         email: storedEmail || undefined,
         role: storedRole as User['role'],
+        gpa: storedGpa || undefined,
       });
       setToken(storedToken);
       console.log('✅ Auth restored from localStorage');
@@ -46,6 +48,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authStorage.setUserId(newUser.userId);
     if (newUser.email) {
       authStorage.setUserEmail(newUser.email);
+    }
+    if (newUser.gpa !== undefined) {
+      authStorage.setUserGpa(newUser.gpa);
     }
   };
 

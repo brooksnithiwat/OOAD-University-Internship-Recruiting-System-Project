@@ -71,6 +71,9 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     if (response.email) {
       authStorage.setUserEmail(response.email);
     }
+    if (response.gpa !== undefined) {
+      authStorage.setUserGpa(response.gpa);
+    }
 
     return response;
   } catch (error) {
@@ -95,6 +98,10 @@ export const getUserId = (): string | null => {
 
 export const getUserEmail = (): string | null => {
   return authStorage.getUserEmail();
+};
+
+export const getUserGpa = (): number | null => {
+  return authStorage.getUserGpa();
 };
 
 export const getProfile = async (): Promise<User | null> => {

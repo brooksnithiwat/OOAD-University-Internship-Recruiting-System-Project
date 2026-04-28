@@ -3,6 +3,7 @@ const TOKEN_KEY = 'AUTH_TOKEN';
 const USER_ROLE_KEY = 'USER_ROLE';
 const USER_ID_KEY = 'USER_ID';
 const USER_EMAIL_KEY = 'USER_EMAIL';
+const USER_GPA_KEY = 'USER_GPA';
 
 export const authStorage = {
   // Get methods
@@ -22,6 +23,11 @@ export const authStorage = {
     return localStorage.getItem(USER_EMAIL_KEY);
   },
 
+  getUserGpa: (): number | null => {
+    const gpa = localStorage.getItem(USER_GPA_KEY);
+    return gpa ? parseFloat(gpa) : null;
+  },
+
   // Set methods
   setToken: (token: string): void => {
     localStorage.setItem(TOKEN_KEY, token);
@@ -39,11 +45,16 @@ export const authStorage = {
     localStorage.setItem(USER_EMAIL_KEY, email);
   },
 
+  setUserGpa: (gpa: number): void => {
+    localStorage.setItem(USER_GPA_KEY, gpa.toString());
+  },
+
   // Clear all
   clearAll: (): void => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_ROLE_KEY);
     localStorage.removeItem(USER_ID_KEY);
     localStorage.removeItem(USER_EMAIL_KEY);
+    localStorage.removeItem(USER_GPA_KEY);
   },
 };
