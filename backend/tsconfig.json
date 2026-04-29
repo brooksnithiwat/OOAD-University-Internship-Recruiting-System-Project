@@ -13,7 +13,7 @@
     "outDir": "./dist",
     "incremental": true,
     "ignoreDeprecations": "5.0",
-    "types": ["node"],
+    "types": ["node", "jest"],
     "strict": true,
     "skipLibCheck": true
   },
