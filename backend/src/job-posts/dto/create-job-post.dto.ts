@@ -18,12 +18,12 @@ export class CreateJobPostDto {
   @IsNotEmpty()
   @MinLength(5)
   @MaxLength(200)
-  title: string;
+  title!: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(20)
-  description: string;
+  description!: string;
 
   @IsString()
   @IsOptional()
@@ -33,19 +33,19 @@ export class CreateJobPostDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   @Max(4)
-  minGpa: number;
+  minGpa!: number;
 
   @IsNumber()
   @Min(10)
   @Max(52)
-  durationWeeks: number;
+  durationWeeks!: number;
 
   @IsDateString()
   @IsNotEmpty()
-  applicationDeadline: string;
+  applicationDeadline!: string;
 
   @IsArray()
   @ArrayMinSize(1)
   @IsString({ each: true })
-  skills: string[];
+  skills!: string[];
 }

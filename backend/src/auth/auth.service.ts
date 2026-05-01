@@ -53,8 +53,8 @@ export class AuthService {
         message: 'Register successful',
         userId: result.userId,
       };
-    } catch (error) {
-      if (error.code === 'P2002') {
+    } catch (error: unknown) {
+      if ((error as { code?: string }).code === 'P2002') {
         throw new BadRequestException('Email or student code already exists');
       }
       throw error;
@@ -93,8 +93,8 @@ export class AuthService {
         message: 'Register successful',
         userId: result.userId,
       };
-    } catch (error) {
-      if (error.code === 'P2002') {
+    } catch (error: unknown) {
+      if ((error as { code?: string }).code === 'P2002') {
         throw new BadRequestException('Email already exists');
       }
       throw error;
