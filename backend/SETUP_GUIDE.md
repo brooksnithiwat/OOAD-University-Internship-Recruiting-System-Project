@@ -1,6 +1,6 @@
 # Phase 1 Auth & Register Module - Setup Guide
 
-## ✅ Generation Complete
+## ✅ Generation Complete 
 
 All 22+ files have been successfully generated for the NestJS backend auth module. This guide covers setup, testing, and deployment.
 
