@@ -1,6 +1,7 @@
 import { Injectable, ConflictException } from '@nestjs/common';
-import { UsersRepository, UserData } from './users.repository';
+import { UsersRepository, UserData, UserListItemData } from './users.repository';
 import { Role } from '../common/enums/role.enum';
+import { SearchUsersDto } from './dto/search-users.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,5 +26,9 @@ export class UsersService {
     }
 
     return this.usersRepository.create(email, passwordHash, role);
+  }
+
+  async findAll(filters: SearchUsersDto): Promise<UserListItemData[]> {
+    return this.usersRepository.findAll(filters);
   }
 }

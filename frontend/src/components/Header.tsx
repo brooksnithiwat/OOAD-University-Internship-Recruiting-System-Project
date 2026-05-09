@@ -12,20 +12,33 @@ export const Header = () => {
 
   return (
     <header className="bg-dark-blue text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold font-castoro">Internship System</h2>
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 className="text-xl font-bold font-castoro sm:text-2xl">Internship System</h2>
           {user && <p className="text-sm text-gray-300">{user.role}</p>}
         </div>
 
-        <div className="flex items-center gap-4">
-          {user && <span className="text-sm">{user.email}</span>}
+        <div className="flex flex-col gap-2 sm:items-end">
+          {user && (
+            <span className="max-w-full break-all text-xs text-gray-100 sm:text-sm">{user.email}</span>
+          )}
+
+          <div className="flex w-full gap-2 sm:w-auto sm:justify-end">
+          {user?.role === 'SYSTEM_ADMINISTRATOR' && (
+            <button
+              onClick={() => navigate('/admin')}
+              className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:flex-none"
+            >
+              Admin
+            </button>
+          )}
           <button
             onClick={handleLogout}
-            className="bg-red-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
+            className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 sm:flex-none"
           >
             Logout
           </button>
+          </div>
         </div>
       </div>
     </header>

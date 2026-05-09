@@ -41,7 +41,12 @@ export const LoginPage = () => {
         response.accessToken,
       );
 
-      navigate('/jobs');
+      // Redirect admin users to admin dashboard
+      if (response.role === 'SYSTEM_ADMINISTRATOR') {
+        navigate('/admin');
+      } else {
+        navigate('/jobs');
+      }
     } catch (error) {
       if (isApiError(error)) {
         setApiError(error.message || 'Login failed');

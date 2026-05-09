@@ -6,23 +6,38 @@ export interface JobFiltersProps {
     search?: string;
     location?: string;
     minGpa?: number;
+    showAll?: boolean;
   }) => void;
+  isAdmin?: boolean;
 }
 
-export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
+export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange, isAdmin = false }) => {
   const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [location, setLocation] = useState('');
   const [useStudentGpa, setUseStudentGpa] = useState(false);
+  const [showActiveOnly, setShowActiveOnly] = useState(false);
+
+  const getShowAllValue = () => (isAdmin ? !showActiveOnly : undefined);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    onFiltersChange({ search: value, location, minGpa: useStudentGpa ? user?.gpa : undefined });
+    onFiltersChange({
+      search: value,
+      location,
+      minGpa: useStudentGpa ? user?.gpa : undefined,
+      showAll: getShowAllValue(),
+    });
   };
 
   const handleLocationChange = (value: string) => {
     setLocation(value);
-    onFiltersChange({ search, location: value, minGpa: useStudentGpa ? user?.gpa : undefined });
+    onFiltersChange({
+      search,
+      location: value,
+      minGpa: useStudentGpa ? user?.gpa : undefined,
+      showAll: getShowAllValue(),
+    });
   };
 
   const handleGpaFilterChange = (checked: boolean) => {
@@ -31,6 +46,17 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
       search,
       location,
       minGpa: checked ? user?.gpa : undefined,
+      showAll: getShowAllValue(),
+    });
+  };
+
+  const handleActiveToggleChange = (checked: boolean) => {
+    setShowActiveOnly(checked);
+    onFiltersChange({
+      search,
+      location,
+      minGpa: useStudentGpa ? user?.gpa : undefined,
+      showAll: !checked,
     });
   };
 
@@ -61,24 +87,43 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
           />
         </div>
 
-        <div>
-          <label className="flex items-center gap-2 mt-8 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={useStudentGpa}
-              onChange={(e) => handleGpaFilterChange(e.target.checked)}
-              className="rounded"
-            />
-            <span className="text-sm font-medium text-gray-700">
-              My GPA ({user?.gpa?.toFixed(2) || 'N/A'})
-            </span>
-          </label>
-          {useStudentGpa && (
-            <p className="text-xs text-gray-500 mt-2">
-              Showing jobs where min GPA ≤ {user?.gpa?.toFixed(2)}
-            </p>
-          )}
-        </div>
+        {!isAdmin && (
+          <div>
+            <label className="flex items-center gap-2 mt-8 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={useStudentGpa}
+                onChange={(e) => handleGpaFilterChange(e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                My GPA ({user?.gpa?.toFixed(2) || 'N/A'})
+              </span>
+            </label>
+            {useStudentGpa && (
+              <p className="text-xs text-gray-500 mt-2">
+                Showing jobs where min GPA ≤ {user?.gpa?.toFixed(2)}
+              </p>
+            )}
+          </div>
+        )}
+
+        {isAdmin && (
+          <div>
+            <label className="flex items-center gap-2 mt-8 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showActiveOnly}
+                onChange={(e) => handleActiveToggleChange(e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-sm font-medium text-gray-700">Status Active</span>
+            </label>
+            {showActiveOnly && (
+              <p className="text-xs text-gray-500 mt-2">Showing only jobs with status ACTIVE</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

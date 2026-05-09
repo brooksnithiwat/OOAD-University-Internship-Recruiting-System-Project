@@ -113,11 +113,14 @@ export class JobPostsRepository {
     today.setHours(0, 0, 0, 0);
 
     const whereClause: any = {
-      status: 'ACTIVE',
       applicationDeadline: {
         gte: today,
       },
     };
+
+    if (!filters.showAll) {
+      whereClause.status = filters.status ?? 'ACTIVE';
+    }
 
     if (filters.location) {
       whereClause.location = {

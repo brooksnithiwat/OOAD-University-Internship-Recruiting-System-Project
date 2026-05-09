@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AuthContext, AuthContextType, User } from './AuthContext';
+import { AuthContext, type AuthContextType, type User } from './AuthContext';
 import { authStorage } from './authStorage';
 
 interface AuthProviderProps {
@@ -19,7 +19,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const storedEmail = authStorage.getUserEmail();
     const storedGpa = authStorage.getUserGpa();
 
-    console.log('🔍 AuthProvider init - Token:', !!storedToken, 'Role:', storedRole, 'UserId:', storedUserId, 'Email:', storedEmail, 'GPA:', storedGpa);
+    console.log(
+      '🔍 AuthProvider init - Token:',
+      !!storedToken,
+      'Role:',
+      storedRole,
+      'UserId:',
+      storedUserId,
+      'Email:',
+      storedEmail,
+      'GPA:',
+      storedGpa,
+    );
 
     if (storedToken && storedRole && storedUserId) {
       setUser({
@@ -42,7 +53,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(newUser);
     setToken(newToken);
 
-    // Save to localStorage
     authStorage.setToken(newToken);
     authStorage.setUserRole(newUser.role);
     authStorage.setUserId(newUser.userId);
@@ -69,5 +79,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return React.createElement(AuthContext.Provider, { value }, children);
 };

@@ -4,6 +4,7 @@ export interface JobPostFilters {
   location?: string;
   minGpa?: number;
   search?: string;
+  showAll?: boolean;
   page?: number;
   limit?: number;
 }
@@ -67,6 +68,7 @@ export const jobPostService = {
     if (filters.location) params.location = filters.location;
     if (filters.minGpa !== undefined) params.minGpa = filters.minGpa;
     if (filters.search) params.search = filters.search;
+    if (filters.showAll) params.showAll = filters.showAll;
     if (filters.page && filters.page !== 1) params.page = filters.page;
     if (filters.limit && filters.limit !== 10) params.limit = filters.limit;
     

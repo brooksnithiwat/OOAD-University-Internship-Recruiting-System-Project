@@ -1,18 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { JobFilters } from '../components/jobs/JobFilters';
 import { JobCard } from '../components/jobs/JobCard';
 import { Header } from '../components/Header';
 import { useJobPosts } from '../hooks/useJobPosts';
 import { JobPostResponse } from '../services/jobPost.service';
+import { useAuth } from '../contexts/auth';
+import { BackToAdminDashboardLink } from '@/components/admin/BackToAdminDashboardLink';
 
 export const JobBoardPage: React.FC = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'SYSTEM_ADMINISTRATOR';
   const [filters, setFilters] = useState({
     search: '',
     location: '',
     minGpa: undefined,
+    showAll: isAdmin,
     page: 1,
     limit: 10,
   });
+
+  useEffect(() => {
+    if (isAdmin) {
+      setFilters((prev) => (prev.showAll ? prev : { ...prev, showAll: true }));
+    }
+  }, [isAdmin]);
 
   const { data, isLoading, isError } = useJobPosts(filters);
 
@@ -50,12 +61,25 @@ export const JobBoardPage: React.FC = () => {
       <Header />
       <div className="min-h-screen bg-gray-50 px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Job Board</h1>
-        <p className="text-gray-600 mb-8">
-          Explore internship opportunities from verified employers
-        </p>
+        {isAdmin && (
+          <BackToAdminDashboardLink className="mb-6" />
+        )}
 
-        <JobFilters onFiltersChange={handleFiltersChange} />
+        <div className="mb-4">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Job Board</h1>
+          <p className="text-gray-600">
+            Explore internship opportunities from verified employers
+          </p>
+        </div>
+
+        <JobFilters onFiltersChange={handleFiltersChange} isAdmin={isAdmin} />
+
+        {data && (
+          <p className="mt-4 mb-4 text-sm text-gray-600">
+            Showing {((filters.page - 1) * filters.limit) + 1} to{' '}
+            {Math.min(filters.page * filters.limit, data.total || 0)} of {data.total || 0} jobs
+          </p>
+        )}
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -83,18 +107,13 @@ export const JobBoardPage: React.FC = () => {
                   location={job.location}
                   minGpa={job.minGpa}
                   applicationDeadline={job.applicationDeadline}
+                  status={job.status}
                   skills={job.skills}
                 />
               ))}
             </div>
 
             <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-600">
-                Showing {((filters.page - 1) * filters.limit) + 1} to{' '}
-                {Math.min(filters.page * filters.limit, data?.total || 0)} of {data?.total || 0}{' '}
-                jobs
-              </p>
-
               <div className="flex gap-2">
                 <button
                   onClick={handlePreviousPage}

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '../common/enums/role.enum';
+import { SearchUsersDto } from './dto/search-users.dto';
 
 export interface UserData {
   userId: string;
@@ -8,6 +10,17 @@ export interface UserData {
   passwordHash: string;
   role: Role;
   isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UserListItemData {
+  userId: string;
+  email: string;
+  role: Role;
+  department: string | null;
+  academicYear: number | null;
+  faculty: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,6 +56,53 @@ export class UsersRepository {
       },
     });
     return this.mapToUserData(user);
+  }
+
+  async findAll(filters: SearchUsersDto): Promise<UserListItemData[]> {
+    const whereClause: Prisma.UserWhereInput = {};
+
+    if (filters.role) {
+      whereClause.role = filters.role;
+    }
+
+    if (filters.search) {
+      whereClause.email = {
+        contains: filters.search,
+        mode: 'insensitive',
+      };
+    }
+
+    const users = await this.prisma.user.findMany({
+      where: whereClause,
+      select: {
+        userId: true,
+        email: true,
+        role: true,
+        student: {
+          select: {
+            department: true,
+            academicYear: true,
+            faculty: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return users.map((user) => ({
+      userId: user.userId,
+      email: user.email,
+      role: user.role as Role,
+      department: user.student?.department ?? null,
+      academicYear: user.student?.academicYear ?? null,
+      faculty: user.student?.faculty ?? null,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }));
   }
 
   private mapToUserData(user: any): UserData {

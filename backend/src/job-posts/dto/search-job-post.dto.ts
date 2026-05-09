@@ -1,5 +1,6 @@
-import { IsString, IsOptional, IsNumber, Min, Max } from 'class-validator';
+import { IsString, IsOptional, IsNumber, Min, Max, IsEnum, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
+import { JobPostStatus } from '@prisma/client';
 
 export class SearchJobPostDto {
   @IsString()
@@ -16,6 +17,15 @@ export class SearchJobPostDto {
   @IsString()
   @IsOptional()
   search?: string;
+
+  @IsEnum(JobPostStatus)
+  @IsOptional()
+  status?: JobPostStatus;
+
+  @IsBoolean()
+  @IsOptional()
+  @Type(() => Boolean)
+  showAll?: boolean;
 
   @IsNumber()
   @IsOptional()

@@ -5,6 +5,9 @@ import { RegisterPage } from '@/pages/RegisterPage';
 import { JobBoardPage } from '@/pages/JobBoardPage';
 import { JobDetailPage } from '@/pages/JobDetailPage';
 import { CreateJobPage } from '@/pages/CreateJobPage';
+import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
+import { UnverifiedEmployersPage } from '@/pages/admin/UnverifiedEmployersPage';
+import { UsersPage } from '@/pages/admin/UsersPage';
 
 const HomePage = () => {
   const { logout } = useAuth();
@@ -52,7 +55,20 @@ export const App = () => {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/" element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />} />
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            user?.role === 'SYSTEM_ADMINISTRATOR' ? (
+              <Navigate to="/admin" replace />
+            ) : (
+              <Navigate to="/jobs" replace />
+            )
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
       <Route
         path="/jobs"
         element={
@@ -74,6 +90,31 @@ export const App = () => {
         element={
           <PrivateRoute>
             <JobDetailPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <PrivateRoute>
+            <AdminDashboardPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/employers/unverified"
+        element={
+          <PrivateRoute>
+            <UnverifiedEmployersPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <PrivateRoute>
+            <UsersPage />
           </PrivateRoute>
         }
       />

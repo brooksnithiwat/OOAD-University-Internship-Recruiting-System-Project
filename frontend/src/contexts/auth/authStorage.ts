@@ -51,7 +51,10 @@ export const authStorage = {
 
   // Clear all
   clearAll: (): void => {
+    // Remove legacy and current token keys to ensure logout clears any token variants
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('TOKEN_KEY');
     localStorage.removeItem(USER_ROLE_KEY);
     localStorage.removeItem(USER_ID_KEY);
     localStorage.removeItem(USER_EMAIL_KEY);

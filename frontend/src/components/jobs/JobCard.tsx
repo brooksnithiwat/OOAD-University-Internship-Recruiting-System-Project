@@ -8,6 +8,7 @@ export interface JobCardProps {
   location: string | null;
   minGpa: number;
   applicationDeadline: string;
+  status: string;
   skills: string[];
 }
 
@@ -27,9 +28,17 @@ export const JobCard: React.FC<JobCardProps> = ({
   location,
   minGpa,
   applicationDeadline,
+  status,
   skills,
 }) => {
   const navigate = useNavigate();
+
+  const statusStyles =
+    status === 'ACTIVE'
+      ? 'bg-green-100 text-green-800'
+      : status === 'CLOSED'
+        ? 'bg-red-100 text-red-800'
+        : 'bg-yellow-100 text-yellow-800';
 
   return (
     <div
@@ -38,11 +47,16 @@ export const JobCard: React.FC<JobCardProps> = ({
     >
       <div className="flex justify-between items-start mb-2">
         <h3 className="font-semibold text-lg text-gray-900 flex-1">{title}</h3>
-        {isDeadlineUrgent(applicationDeadline) && (
-          <span className="ml-2 px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded">
-            Closing Soon
+        <div className="ml-2 flex flex-col items-end gap-2">
+          <span className={`px-2 py-1 text-xs font-medium rounded ${statusStyles}`}>
+            {status}
           </span>
-        )}
+          {isDeadlineUrgent(applicationDeadline) && (
+            <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded">
+              Closing Soon
+            </span>
+          )}
+        </div>
       </div>
 
       <p className="text-sm text-gray-600 mb-3">{companyName}</p>
