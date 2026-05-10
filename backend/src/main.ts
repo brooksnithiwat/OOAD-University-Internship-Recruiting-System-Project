@@ -12,6 +12,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+   
   
    const frontendUrl = process.env.FRONTEND_URL;
   app.enableCors({
