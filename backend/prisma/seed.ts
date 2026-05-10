@@ -16,8 +16,9 @@ async function main() {
       role: 'SYSTEM_ADMINISTRATOR',
       isActive: true,
     },
-  }) 
+  })  
   
+
 
   console.log('Admin seeded')
 }
