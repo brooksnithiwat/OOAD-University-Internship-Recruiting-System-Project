@@ -17,12 +17,6 @@ async function main() {
       isActive: true,
     },
   })  
-
-    
-
-   
-
-
   console.log('Admin seeded')
 }
 
