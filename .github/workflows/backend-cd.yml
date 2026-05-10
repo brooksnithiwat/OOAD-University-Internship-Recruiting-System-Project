@@ -21,6 +21,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # 🔍 DEBUG STEP (เพิ่มตรงนี้)
+      - name: Show Prisma Env
+        run: |
+          echo "===== DATABASE ENV ====="
+          printenv | grep DATABASE || true
+          echo "===== DIRECT ENV ====="
+          printenv | grep DIRECT || true
+
       - name: Run Prisma Migrations
         env:
           DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
