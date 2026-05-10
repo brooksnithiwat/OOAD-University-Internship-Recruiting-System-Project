@@ -16,17 +16,26 @@ jobs:
         working-directory: backend
 
     steps:
-      - uses: actions/checkout@v4
+      # 📥 Checkout repo
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # 📦 install dependencies
+      # 📦 Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # 🔧 Install Supabase CLI (FIX: no npm -g)
+      # 🔧 Install Supabase CLI (official way)
       - name: Install Supabase CLI
         run: |
           curl -fsSL https://supabase.com/install.sh | sh
-          echo "$HOME/.supabase/bin" >> $GITHUB_PATH
+
+      # 🔧 Add CLI to PATH
+      - name: Add Supabase to PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      # 🔍 Verify CLI exists
+      - name: Verify Supabase CLI
+        run: supabase --version
 
       # 🔐 Run Supabase migrations (NO direct DB 5432)
       - name: Run Supabase Migrations
@@ -36,7 +45,7 @@ jobs:
           supabase link --project-ref hthrqcsxtoeagjylueqy
           supabase db push
 
-      # 🌱 Prisma seed (runtime only, safe)
+      # 🌱 Prisma seed (runtime only)
       - name: Run Database Seed
         env:
           DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
@@ -44,4 +53,6 @@ jobs:
 
       # 🚀 Deploy to Render
       - name: Trigger Render Deploy
-        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: curl -X POST $RENDER_DEPLOY_HOOK
