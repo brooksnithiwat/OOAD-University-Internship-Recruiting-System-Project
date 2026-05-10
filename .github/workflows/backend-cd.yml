@@ -18,45 +18,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 📦 install deps
       - name: Install dependencies
         run: npm ci
 
-      # 🔍 DEBUG 1: show all env keys (ไม่โชว์ value)
-      - name: Show ENV keys (safety debug)
-        run: printenv | sort | grep -E "DATABASE|DIRECT|SUPABASE|PRISMA" || true
+      # 🔧 install Supabase CLI (fix network issue with 5432)
+      - name: Install Supabase CLI
+        run: npm install -g supabase
 
-      # 🔍 DEBUG 2: check if secrets exist (length check)
-      - name: Check env values length
+      # 🔐 link project + run migrations (NO direct DB connection)
+      - name: Run Supabase Migrations
         env:
-          DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
-          echo "DATABASE_URL length:"
-          echo -n "$DATABASE_URL" | wc -c
+          supabase link --project-ref hthrqcsxtoeagjylueqy
+          supabase db push
 
-          echo "DIRECT_URL length:"
-          echo -n "$DIRECT_URL" | wc -c
-
-      # 🔍 DEBUG 3: show Prisma sees what
-      - name: Show Prisma Env (filtered)
-        run: |
-          echo "===== DATABASE ====="
-          printenv | grep DATABASE || true
-          echo "===== DIRECT ====="
-          printenv | grep DIRECT || true
-
-      - name: Run Prisma Migrations
-        env:
-          DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
-        run: npx prisma migrate deploy
-
+      # 🌱 Seed database (ใช้ Prisma runtime ได้)
       - name: Run Database Seed
         env:
           DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
         run: npm run prisma:seed
 
+      # 🚀 Deploy to Render
       - name: Trigger Render Deploy
-        env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
-        run: curl -X POST $RENDER_DEPLOY_HOOK
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
