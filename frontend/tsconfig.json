@@ -11,10 +11,11 @@
     "isolatedModules": true,
     "noEmit": true,
     "types": ["node", "vite/client"],
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "playwright.config.ts", "vite.config.ts", "vitest.config.ts"]
 }
