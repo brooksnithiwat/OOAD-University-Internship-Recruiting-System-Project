@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 async function main() {
   const passwordHash = await bcrypt.hash('admin1234', 10)
 
-  
+
   await prisma.user.upsert({
     where: { email: 'admin@system.com' },
     update: {},
@@ -16,7 +16,8 @@ async function main() {
       role: 'SYSTEM_ADMINISTRATOR',
       isActive: true,
     },
-  })
+  }) 
+  
 
   console.log('Admin seeded')
 }
