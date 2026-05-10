@@ -5,6 +5,7 @@ import { Header } from '@/components/Header';
 import { UnverifiedEmployerTable } from '@/components/admin/UnverifiedEmployerTable';
 import { useEmployers, useVerifyEmployer } from '@/hooks/useAdmin';
 import { useAuth } from '@/contexts/auth';
+import { SearchBox } from '@/components/ui/SearchBox';
 
 interface ToastMessage {
   id: number;
@@ -114,16 +115,13 @@ export const UnverifiedEmployersPage: React.FC = () => {
           </div>
 
           <div className="mb-4 grid grid-cols-1 gap-3 rounded-xl border border-gray-200 bg-white p-4 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Search by email</label>
-              <input
-                type="text"
-                value={searchEmail}
-                onChange={(event) => setSearchEmail(event.target.value)}
-                placeholder="example@gmail.com"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-              />
-            </div>
+            <SearchBox
+              id="search"
+              label="Search by email"
+              placeholder="example@gmail.com"
+              value={searchEmail}
+              onChange={setSearchEmail}
+            />
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Approval status</label>
               <select

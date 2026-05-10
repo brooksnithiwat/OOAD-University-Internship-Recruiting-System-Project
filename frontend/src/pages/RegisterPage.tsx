@@ -91,7 +91,7 @@ export const RegisterPage = () => {
       setShowSuccessModal(true);
     } catch (error) {
       if (isApiError(error)) {
-        setApiError(error.message || 'Student registration failed');
+        setApiError(error.data?.message || error.message || 'Student registration failed');
       } else {
         setApiError('An unexpected error occurred');
       }
@@ -120,7 +120,7 @@ export const RegisterPage = () => {
       setShowSuccessModal(true);
     } catch (error) {
       if (isApiError(error)) {
-        setApiError(error.message || 'Employer registration failed');
+        setApiError(error.data?.message || error.message || 'Employer registration failed');
       } else {
         setApiError('An unexpected error occurred');
       }

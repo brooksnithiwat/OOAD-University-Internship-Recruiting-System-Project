@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import type { ApiErrorData } from '@/types/api';
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
 
 export class ApiError extends Error {
   name = 'ApiError';

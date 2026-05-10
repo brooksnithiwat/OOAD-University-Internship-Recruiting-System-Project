@@ -49,7 +49,7 @@ export const LoginPage = () => {
       }
     } catch (error) {
       if (isApiError(error)) {
-        setApiError(error.message || 'Login failed');
+        setApiError(error.data?.message || error.message || 'Login failed');
       } else {
         setApiError('An unexpected error occurred');
       }

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/auth';
+import { SearchBox } from '../ui/SearchBox';
+import { LocationBox } from '../ui/LocationBox';
 
 export interface JobFiltersProps {
   onFiltersChange: (filters: {
@@ -66,24 +68,22 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange, isAdmin
 
       <div className="grid gap-4 md:grid-cols-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-          <input
-            type="text"
+          <SearchBox
+            id="search"
+            label="Search"
             placeholder="Search by title or description..."
             value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={handleSearchChange}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-          <input
-            type="text"
+          <LocationBox
+            id="location"
+            label="Location"
             placeholder="Filter by location..."
             value={location}
-            onChange={(e) => handleLocationChange(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={handleLocationChange}
           />
         </div>
 

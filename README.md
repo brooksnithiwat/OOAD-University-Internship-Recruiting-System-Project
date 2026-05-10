@@ -17,7 +17,7 @@ The project uses separate environment files for the backend and frontend:
 	- `DATABASE_URL="postgresql://user:password@localhost:5432/mydb"`
 	- `PORT=3000`
 	- `JWT_SECRET=your_jwt_secret_key`
-	- `FRONTEND_URL=http://localhost:5174`
+	- `FRONTEND_URL=http://localhost:5173`
 - `frontend/.env.example`
 	- `VITE_API_URL="http://localhost:3000"`
 
@@ -79,7 +79,7 @@ Copy `backend/.env.example` to `backend/.env` and update the values for your loc
 DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
 PORT=3000
 JWT_SECRET=your_jwt_secret_key
-FRONTEND_URL=http://localhost:5174
+FRONTEND_URL=http://localhost:5173
 ```
 
 ### 3. Prepare Prisma
