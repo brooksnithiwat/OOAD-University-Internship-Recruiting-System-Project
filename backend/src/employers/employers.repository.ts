@@ -17,7 +17,8 @@ export interface EmployerData {
 @Injectable()
 export class EmployersRepository {
   constructor(private readonly prisma: PrismaService) {}
-
+ 
+  
   async create(
     userId: string,
     companyName: string,
