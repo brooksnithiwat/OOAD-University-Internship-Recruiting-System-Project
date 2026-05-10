@@ -21,12 +21,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 🔍 DEBUG STEP (เพิ่มตรงนี้)
-      - name: Show Prisma Env
+      # 🔍 DEBUG 1: show all env keys (ไม่โชว์ value)
+      - name: Show ENV keys (safety debug)
+        run: printenv | sort | grep -E "DATABASE|DIRECT|SUPABASE|PRISMA" || true
+
+      # 🔍 DEBUG 2: check if secrets exist (length check)
+      - name: Check env values length
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
         run: |
-          echo "===== DATABASE ENV ====="
+          echo "DATABASE_URL length:"
+          echo -n "$DATABASE_URL" | wc -c
+
+          echo "DIRECT_URL length:"
+          echo -n "$DIRECT_URL" | wc -c
+
+      # 🔍 DEBUG 3: show Prisma sees what
+      - name: Show Prisma Env (filtered)
+        run: |
+          echo "===== DATABASE ====="
           printenv | grep DATABASE || true
-          echo "===== DIRECT ENV ====="
+          echo "===== DIRECT ====="
           printenv | grep DIRECT || true
 
       - name: Run Prisma Migrations
