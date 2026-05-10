@@ -18,7 +18,8 @@ async function main() {
     },
   })  
 
-   
+    
+  
 
 
   console.log('Admin seeded')
