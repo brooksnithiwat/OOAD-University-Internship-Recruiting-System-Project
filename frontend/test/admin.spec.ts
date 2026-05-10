@@ -29,6 +29,7 @@ test.describe('Admin flows', () => {
       totalUsers: 18,
       jobs: defaultJobFixtures,
     });
+     
 
     await page.goto(`${APP_BASE_URL}/admin`);
 
