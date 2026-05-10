@@ -28,14 +28,12 @@ jobs:
       - name: Run Prisma Migrations
         env:
           DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.SUPABASE_DIRECT_URL }}
         run: npx prisma migrate deploy
 
       # 🌱 Prisma seed
       - name: Run Database Seed
         env:
           DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.SUPABASE_DIRECT_URL }}
         run: npm run prisma:seed
 
       # 🚀 Deploy to Render
