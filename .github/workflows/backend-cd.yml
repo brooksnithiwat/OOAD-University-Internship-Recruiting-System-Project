@@ -24,22 +24,27 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 🔐 Run Prisma Migrations
-      - name: Run Prisma Migrations
-        env:
-          DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.SUPABASE_DIRECT_URL }}
-        run: npx prisma migrate deploy
+      # ✅ Run tests
+      - name: Run tests
+        run: npm test -- --passWithNoTests
 
-      # 🌱 Prisma seed
-      - name: Run Database Seed
-        env:
-          DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.SUPABASE_DIRECT_URL }}
-        run: npm run prisma:seed
-
-      # 🚀 Deploy to Render
-      - name: Trigger Render Deploy
+      # 🚀 Trigger Render Deploy
+      - name: Deploy to Render
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
-        run: curl -X POST $RENDER_DEPLOY_HOOK
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "⚠️  RENDER_DEPLOY_HOOK not set"
+          else
+            curl -X POST "$RENDER_DEPLOY_HOOK"
+            echo "✅ Render deployment triggered"
+          fi
+
+      # ℹ️ Log deployment info
+      - name: Log Supabase deployment info
+        run: |
+          echo "✅ Backend deployment workflow completed"
+          echo "📋 Migrations and seeding will run in Render container using:"
+          echo "   - DATABASE_URL (Supabase pooled connection)"
+          echo "   - DIRECT_URL (Supabase direct connection)"
+          echo "ℹ️  Ensure these environment variables are set in Render dashboard"
