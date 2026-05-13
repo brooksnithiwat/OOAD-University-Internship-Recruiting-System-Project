@@ -16,12 +16,27 @@ type UploadVars = {
   onUploadProgress?: (pct: number) => void;
 };
 
+type DeleteVars = {
+  resumeId: string;
+};
+
 export function useUploadResume() {
   const qc = useQueryClient();
 
   return useMutation({
     mutationFn: ({ file, onUploadProgress }: UploadVars) =>
       resumeService.uploadResume(file, onUploadProgress),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: RESUMES_KEY });
+    },
+  });
+}
+
+export function useDeleteResume() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ resumeId }: DeleteVars) => resumeService.deleteResume(resumeId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: RESUMES_KEY });
     },

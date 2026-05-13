@@ -39,4 +39,9 @@ export const getMyResumes = async (): Promise<ResumeRecord[]> => {
   return res.data as ResumeRecord[];
 };
 
-export default { uploadResume, getMyResumes };
+export const deleteResume = async (resumeId: string) => {
+  const res = await axios.delete(`/resumes/${resumeId}`);
+  return res.data as { message: string };
+};
+
+export default { uploadResume, getMyResumes, deleteResume };

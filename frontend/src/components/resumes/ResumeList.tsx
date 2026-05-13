@@ -1,6 +1,14 @@
 import React from 'react';
-import { useMyResumes } from '../../hooks/useResumes';
+import { useDeleteResume, useMyResumes } from '../../hooks/useResumes';
 import ResumeStatusBadge from './ResumeStatusBadge';
+
+const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL ?? '';
+
+function buildFileUrl(fileRef: string) {
+  const base = API_BASE_URL.replace(/\/$/, '');
+  const filePath = fileRef.replace(/^\//, '');
+  return base ? `${base}/${filePath}` : `/${filePath}`;
+}
 
 function formatDate(iso?: string) {
   if (!iso) return '';
@@ -22,6 +30,27 @@ function formatBytes(bytes: number) {
 
 const ResumeList: React.FC = () => {
   const { data, isLoading, isFetching } = useMyResumes();
+  const deleteMutation = useDeleteResume();
+
+  const handleDelete = (resumeId: string) => {
+    const confirmed = window.confirm('Are you syre you wan to delete this resume?');
+    if (!confirmed) {
+      return;
+    }
+
+    deleteMutation.mutate(
+      { resumeId },
+      {
+        onSuccess: () => {
+          window.alert('Resume deleted successfully');
+        },
+        onError: (err: any) => {
+          const msg = err?.response?.data?.message || err?.message || 'Delete failed';
+          window.alert(`Delete failed: ${msg}`);
+        },
+      },
+    );
+  };
 
   if (isLoading) {
     return (
@@ -51,7 +80,22 @@ const ResumeList: React.FC = () => {
           </div>
           <div className="flex items-center space-x-3">
             <ResumeStatusBadge status={r.virusScanStatus} />
-            <a href={`/${r.fileRef}`} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline">Open</a>
+            <a
+              href={buildFileUrl(r.fileRef)}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Open
+            </a>
+            <button
+              type="button"
+              onClick={() => handleDelete(r.resumeId)}
+              disabled={deleteMutation.isPending}
+              className="text-sm text-red-600 hover:underline disabled:opacity-50"
+            >
+              Delete
+            </button>
           </div>
         </div>
       ))}
