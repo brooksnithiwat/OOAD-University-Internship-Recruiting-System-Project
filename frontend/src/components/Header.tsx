@@ -24,6 +24,14 @@ export const Header = () => {
           )}
 
           <div className="flex w-full gap-2 sm:w-auto sm:justify-end">
+          {user?.role === 'STUDENT' && (
+            <button
+              onClick={() => navigate('/profile/resumes')}
+              className="flex-1 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 sm:flex-none"
+            >
+              Resumes
+            </button>
+          )}
           {user?.role === 'SYSTEM_ADMINISTRATOR' && (
             <button
               onClick={() => navigate('/admin')}

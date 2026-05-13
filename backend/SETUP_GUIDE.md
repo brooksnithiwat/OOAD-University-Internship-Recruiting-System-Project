@@ -123,6 +123,29 @@ npm run build
 npm start
 ```
 
+## 🧪 Running Tests
+
+### Run All Tests
+```bash
+npm run test
+```
+
+### Run Tests with Verbose Output
+```bash
+npm run test -- --verbose
+```
+
+This will:
+- Execute all test suites in `test/` directory
+- Display detailed information about each test
+- Show pass/fail status for each test case
+- Display any console logs from tests
+
+### Test Files
+- `test/auth.service.spec.ts` - Authentication service tests
+- `test/job-posts.service.spec.ts` - Job posts service tests
+- `test/resume.service.spec.ts` - Resume upload service tests
+
 ## 📝 API Endpoints
 
 ### 1. Student Registration
