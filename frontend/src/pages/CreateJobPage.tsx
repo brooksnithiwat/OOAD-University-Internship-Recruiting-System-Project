@@ -5,6 +5,24 @@ import { CreateJobForm } from '../components/jobs/CreateJobForm';
 import { useCreateJobPost } from '../hooks/useJobPosts';
 import { CreateJobPostRequest } from '../services/jobPost.service';
 
+const getCreateJobPostErrorMessage = (error: unknown) => {
+  const fallbackMessage = 'Error creating job post. Please try again.';
+
+  if (!error || typeof error !== 'object') {
+    return fallbackMessage;
+  }
+
+  const apiError = error as {
+    response?: {
+      data?: {
+        message?: string;
+      };
+    };
+  };
+
+  return apiError.response?.data?.message ?? fallbackMessage;
+};
+
 export const CreateJobPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -49,7 +67,7 @@ export const CreateJobPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-8">
           {createJobPost.isError && (
             <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-800 rounded-lg text-sm">
-              ❌ Error creating job post. Please try again.
+              ❌ {getCreateJobPostErrorMessage(createJobPost.error)}
             </div>
           )}
 

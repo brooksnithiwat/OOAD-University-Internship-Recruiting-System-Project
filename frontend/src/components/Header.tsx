@@ -40,6 +40,14 @@ export const Header = () => {
               Admin
             </button>
           )}
+          {user?.role === 'EMPLOYER' && (
+            <button
+              onClick={() => navigate('/jobs/create')}
+              className="flex-1 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 sm:flex-none"
+            >
+              Create Job Post
+            </button>
+          )}
           <button
             onClick={handleLogout}
             className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 sm:flex-none"

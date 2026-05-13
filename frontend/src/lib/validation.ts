@@ -3,6 +3,8 @@ import type { LoginCredentials, RegisterData, StudentRegisterData, EmployerRegis
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_MIN_LENGTH = 8;
 const STUDENT_CODE_REGEX = /^\d{11}$/;
+const PASSWORD_UPPERCASE_REGEX = /[A-Z]/;
+const PASSWORD_SPECIAL_REGEX = /[!@#$%^&*(),.?":{}|<>\[\]\\/;'`~\-_=+]/;
 
 export const validateLogin = (credentials: LoginCredentials): ValidationError[] => {
   const errors: ValidationError[] = [];
@@ -86,8 +88,8 @@ export const validateStudentRegister = (data: StudentRegisterData): ValidationEr
     errors.push({ field: 'academicYear', message: 'Academic year is required' });
   } else {
     const yearNum = parseInt(data.academicYear);
-    if (isNaN(yearNum) || yearNum < 1 || yearNum > 6) {
-      errors.push({ field: 'academicYear', message: 'Academic year must be between 1 and 6' });
+    if (isNaN(yearNum) || yearNum < 1 || yearNum > 4) {
+      errors.push({ field: 'academicYear', message: 'Academic year must be between 1 and 4' });
     }
   }
 
@@ -95,8 +97,8 @@ export const validateStudentRegister = (data: StudentRegisterData): ValidationEr
     errors.push({ field: 'gpa', message: 'GPA is required' });
   } else {
     const gpaNum = parseFloat(data.gpa);
-    if (isNaN(gpaNum) || gpaNum < 0 || gpaNum > 4) {
-      errors.push({ field: 'gpa', message: 'GPA must be between 0 and 4' });
+    if (isNaN(gpaNum) || gpaNum < 1 || gpaNum > 4) {
+      errors.push({ field: 'gpa', message: 'GPA must be between 1 and 4' });
     }
   }
 
@@ -107,6 +109,13 @@ export const validateStudentRegister = (data: StudentRegisterData): ValidationEr
       field: 'password',
       message: `Password must be at least ${PASSWORD_MIN_LENGTH} characters`,
     });
+  } else {
+    if (!PASSWORD_UPPERCASE_REGEX.test(data.password)) {
+      errors.push({ field: 'password', message: 'Password must include at least one uppercase letter' });
+    }
+    if (!PASSWORD_SPECIAL_REGEX.test(data.password)) {
+      errors.push({ field: 'password', message: 'Password must include at least one special character' });
+    }
   }
 
   if (!data.confirmPassword) {
@@ -158,6 +167,13 @@ export const validateEmployerRegister = (data: EmployerRegisterData): Validation
       field: 'password',
       message: `Password must be at least ${PASSWORD_MIN_LENGTH} characters`,
     });
+  } else {
+    if (!PASSWORD_UPPERCASE_REGEX.test(data.password)) {
+      errors.push({ field: 'password', message: 'Password must include at least one uppercase letter' });
+    }
+    if (!PASSWORD_SPECIAL_REGEX.test(data.password)) {
+      errors.push({ field: 'password', message: 'Password must include at least one special character' });
+    }
   }
 
   if (!data.confirmPassword) {

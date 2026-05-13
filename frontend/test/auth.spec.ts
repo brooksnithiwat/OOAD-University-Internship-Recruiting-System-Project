@@ -27,8 +27,8 @@ test.describe('Auth flows', () => {
     await page.getByLabel('Academic Year').fill('3');
     await page.getByLabel('GPA').fill('3.20');
     await page.getByLabel('Email Address').fill('student-new@test.com');
-    await page.getByLabel('Password').first().fill('password123');
-    await page.getByLabel('Confirm Password').fill('password123');
+    await page.getByLabel('Password').first().fill('Password_123');
+    await page.getByLabel('Confirm Password').fill('Password_123');
 
     await page.getByRole('button', { name: 'Register as Student' }).click();
 
@@ -49,8 +49,8 @@ test.describe('Auth flows', () => {
     await page.getByLabel('Academic Year').fill('3');
     await page.getByLabel('GPA').fill('3.20');
     await page.getByLabel('Email Address').fill('student@test.com');
-    await page.getByLabel('Password').first().fill('password123');
-    await page.getByLabel('Confirm Password').fill('password123');
+    await page.getByLabel('Password').first().fill('Password_123');
+    await page.getByLabel('Confirm Password').fill('Password_123');
 
     await page.getByRole('button', { name: 'Register as Student' }).click();
 

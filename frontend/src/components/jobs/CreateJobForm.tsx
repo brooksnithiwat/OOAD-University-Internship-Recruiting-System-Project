@@ -3,10 +3,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { CreateJobPostRequest } from '../../services/jobPost.service';
+import { title } from 'node:process';
 
 const jobPostSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
+  description: z.string().min(10, 'Description must be at least 20 characters'),
   location: z.string().optional(),
   minGpa: z.number().min(0).max(4, 'GPA must be between 0 and 4'),
   durationWeeks: z.number().min(10, 'Duration must be at least 10 weeks'),
@@ -64,12 +65,13 @@ export const CreateJobForm: React.FC<CreateJobFormProps> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
         <Controller
           name="title"
           control={control}
           render={({ field }) => (
             <input
+              id="title"
               {...field}
               type="text"
               placeholder="e.g., Software Engineer Intern"
@@ -81,12 +83,13 @@ export const CreateJobForm: React.FC<CreateJobFormProps> = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
         <Controller
           name="description"
           control={control}
           render={({ field }) => (
             <textarea
+              id="description"
               {...field}
               placeholder="Describe the internship role, responsibilities, and expectations..."
               rows={5}
@@ -101,12 +104,13 @@ export const CreateJobForm: React.FC<CreateJobFormProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
           <Controller
             name="location"
             control={control}
             render={({ field }) => (
               <input
+                  id="location"
                 {...field}
                 type="text"
                 placeholder="e.g., Bangkok, Thailand"
@@ -117,12 +121,13 @@ export const CreateJobForm: React.FC<CreateJobFormProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Min GPA</label>
+          <label htmlFor="minGpa" className="block text-sm font-medium text-gray-700 mb-1">Min GPA</label>
           <Controller
             name="minGpa"
             control={control}
             render={({ field }) => (
               <input
+                  id="minGpa"
                 {...field}
                 type="number"
                 step="0.01"
@@ -139,7 +144,7 @@ export const CreateJobForm: React.FC<CreateJobFormProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="durationWeeks" className="block text-sm font-medium text-gray-700 mb-1">
             Duration (weeks) *
           </label>
           <Controller
@@ -147,6 +152,7 @@ export const CreateJobForm: React.FC<CreateJobFormProps> = ({
             control={control}
             render={({ field }) => (
               <input
+                id="durationWeeks"
                 {...field}
                 type="number"
                 min="10"
@@ -161,7 +167,7 @@ export const CreateJobForm: React.FC<CreateJobFormProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="applicationDeadline" className="block text-sm font-medium text-gray-700 mb-1">
             Application Deadline *
           </label>
           <Controller
@@ -169,6 +175,7 @@ export const CreateJobForm: React.FC<CreateJobFormProps> = ({
             control={control}
             render={({ field }) => (
               <input
+                id="applicationDeadline"
                 {...field}
                 type="date"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -182,9 +189,10 @@ export const CreateJobForm: React.FC<CreateJobFormProps> = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Skills *</label>
+        <label htmlFor="skillInput" className="block text-sm font-medium text-gray-700 mb-1">Skills *</label>
         <div className="flex gap-2 mb-2">
           <input
+            id="skillInput"
             type="text"
             value={skillInput}
             onChange={(e) => setSkillInput(e.target.value)}

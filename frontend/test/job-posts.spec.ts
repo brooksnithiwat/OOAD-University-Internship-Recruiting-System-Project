@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test';
 import {
   APP_BASE_URL,
+  VERIFIED_EMPLOYER,
   STUDENT,
   createJobFixtures,
+  fulfillJson,
   mockJobPostRoutes,
 } from '../helpers/mock.helper';
 import { seedAuthSession } from '../helpers/auth.helper';
@@ -18,6 +20,60 @@ test.describe('Job posts flows', () => {
     await expect(page.getByRole('heading', { name: 'Software Engineer Intern' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Data Analyst Intern' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Mobile App Intern' })).toBeVisible();
+  });
+
+  test('employer can see and use the create job post button', async ({ page }) => {
+    await seedAuthSession(page, VERIFIED_EMPLOYER);
+    await mockJobPostRoutes(page, createJobFixtures());
+
+    await page.goto(`${APP_BASE_URL}/jobs`);
+
+    await expect(page.getByRole('button', { name: 'Create Job Post' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
+    await page.getByRole('button', { name: 'Create Job Post' }).click();
+
+    await expect(page).toHaveURL(`${APP_BASE_URL}/jobs/create`);
+    await expect(page.getByRole('heading', { name: 'Post a New Internship' })).toBeVisible();
+  });
+
+  test('create job post errors show the backend message', async ({ page }) => {
+    await seedAuthSession(page, VERIFIED_EMPLOYER);
+
+    await page.route('**/*job-posts**', async (route) => {
+      if (route.request().method() === 'POST') {
+        await fulfillJson(route, {
+          message: 'Employer must be verified to create job posts',
+          error: 'Forbidden',
+          statusCode: 403,
+        }, 403);
+        return;
+      }
+
+      await route.abort('failed');
+    });
+
+    await page.goto(`${APP_BASE_URL}/jobs/create`);
+    await page.getByLabel('Title *').fill('Backend Intern');
+    await page.getByLabel('Description *').fill('Build and maintain internship backend features.');
+    await page.getByLabel('Location').fill('Bangkok');
+    await page.getByLabel('Min GPA').fill('3.00');
+    await page.getByLabel('Duration (weeks) *').fill('12');
+    await page.locator('input[type="date"]').fill('2026-12-31');
+    await page.getByPlaceholder('Type a skill and press Enter...').fill('Node.js');
+    await page.getByPlaceholder('Type a skill and press Enter...').press('Enter');
+
+    await page.locator('form').getByRole('button', { name: 'Create Job Post' }).click();
+
+    await expect(page.getByText('Employer must be verified to create job posts')).toBeVisible();
+  });
+
+  test('employer does not see the my GPA filter', async ({ page }) => {
+    await seedAuthSession(page, VERIFIED_EMPLOYER);
+    await mockJobPostRoutes(page, createJobFixtures());
+
+    await page.goto(`${APP_BASE_URL}/jobs`);
+
+    await expect(page.getByRole('checkbox', { name: /My GPA/i })).toHaveCount(0);
   });
 
   test('search filters jobs by keyword', async ({ page }) => {
