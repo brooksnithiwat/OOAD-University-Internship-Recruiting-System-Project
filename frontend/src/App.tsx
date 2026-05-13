@@ -5,6 +5,7 @@ import { RegisterPage } from '@/pages/RegisterPage';
 import { JobBoardPage } from '@/pages/JobBoardPage';
 import { JobDetailPage } from '@/pages/JobDetailPage';
 import { CreateJobPage } from '@/pages/CreateJobPage';
+import ResumePage from './pages/ResumePage';
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
 import { UnverifiedEmployersPage } from '@/pages/admin/UnverifiedEmployersPage';
 import { UsersPage } from '@/pages/admin/UsersPage';
@@ -90,6 +91,14 @@ export const App = () => {
         element={
           <PrivateRoute>
             <JobDetailPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/profile/resumes"
+        element={
+          <PrivateRoute>
+            <ResumePage />
           </PrivateRoute>
         }
       />
