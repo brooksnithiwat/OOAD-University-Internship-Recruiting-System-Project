@@ -4,6 +4,7 @@ import { JobPostsRepository } from '../src/job-posts/job-posts.repository';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
+
 // Mock data
 const mockJobPost = {
   jobId: 'job-uuid-1',

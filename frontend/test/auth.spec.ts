@@ -41,6 +41,7 @@ test.describe('Auth flows', () => {
     await mockStudentRegisterRoute(page, createDuplicateEmailError());
     await page.goto(`${APP_BASE_URL}/register`);
 
+    
     await page.getByLabel('Student Code').fill('66070503410');
     await page.getByLabel('First Name').fill('Jane');
     await page.getByLabel('Last Name').fill('Doe');
