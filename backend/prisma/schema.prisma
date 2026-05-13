@@ -22,6 +22,12 @@ enum EligibilityStatus {
   PENDING
 }
 
+enum VirusScanStatus {
+  PENDING
+  CLEAN
+  INFECTED
+}
+
 model User {
   userId       String    @id @default(uuid()) @map("user_id")
   email        String    @unique
@@ -52,6 +58,7 @@ model Student {
   updatedAt         DateTime          @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  resumes Resume[]
 
   @@map("students")
 }
@@ -104,4 +111,19 @@ model JobPostSkill {
 
   @@id([jobId, skill])
   @@map("job_post_skills")
+}
+
+model Resume {
+  resumeId        String          @id @default(uuid()) @map("resume_id")
+  studentId       String          @map("student_id")
+  fileName        String          @map("file_name")
+  fileRef         String          @map("file_ref")
+  fileSizeBytes   Int             @map("file_size_bytes")
+  mimeType        String          @default("application/pdf") @map("mime_type")
+  virusScanStatus VirusScanStatus @default(PENDING) @map("virus_scan_status")
+  uploadedAt      DateTime        @default(now()) @map("uploaded_at")
+
+  student Student @relation(fields: [studentId], references: [studentId], onDelete: Cascade)
+
+  @@map("resumes")
 }
