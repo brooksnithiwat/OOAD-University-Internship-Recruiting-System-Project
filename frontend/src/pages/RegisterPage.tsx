@@ -243,7 +243,7 @@ export const RegisterPage = () => {
                     value={studentForm.formValues.academicYear}
                     error={studentForm.formErrors.academicYear}
                     onChange={studentForm.handleChange}
-                    placeholder="3rd Year"
+                    placeholder="1-4"
                   />
                   <InputField
                     label="GPA"

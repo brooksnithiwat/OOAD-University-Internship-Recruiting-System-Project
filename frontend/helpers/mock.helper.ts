@@ -65,26 +65,20 @@ export const mockSessionUser = (user: MockSessionUser, token: string = MOCK_JWT)
   gpa: user.gpa,
 });
 
-export const successResponse = <T,>(body: T, status = 200, statusText = 'OK') => ({
+export const successResponse = <T,>(body: T, status = 200) => ({
   status,
-  statusText,
   body: JSON.stringify(body),
   contentType: 'application/json',
 });
 
-export const errorResponse = (
-  status: number,
-  statusText: string,
-  body: Record<string, unknown> = {},
-) => ({
+export const errorResponse = (status: number, body: Record<string, unknown> = {}) => ({
   status,
-  statusText,
   body: JSON.stringify(body),
   contentType: 'application/json',
 });
 
-export const fulfillJson = async <T,>(route: Route, payload: T, status = 200, statusText = 'OK') => {
-  await route.fulfill(successResponse(payload, status, statusText));
+export const fulfillJson = async <T,>(route: Route, payload: T, status = 200) => {
+  await route.fulfill(successResponse(payload, status));
 };
 
 export const createStudentRegisterSuccess = (userId = 'student-created-1') => ({
@@ -93,17 +87,17 @@ export const createStudentRegisterSuccess = (userId = 'student-created-1') => ({
 });
 
 export const createDuplicateEmailError = () =>
-  errorResponse(409, 'Email already exists', {
+  errorResponse(409, {
     message: 'Email already exists',
   });
 
 export const createUnauthorizedError = () =>
-  errorResponse(401, 'Invalid credentials', {
+  errorResponse(401, {
     message: 'Invalid credentials',
   });
 
 export const createNotFoundError = () =>
-  errorResponse(404, 'User not found', {
+  errorResponse(404, {
     message: 'User not found',
   });
 
@@ -288,7 +282,7 @@ const buildJobListResponse = (jobs: JobFixture[], params: URLSearchParams): JobP
 
 export const mockAuthLoginRoute = async (page: Page, user: MockSessionUser, token = MOCK_JWT) => {
   await page.route('**/*auth/login', async (route) => {
-    await fulfillJson(route, createLoginResponse(user), 200, 'OK');
+    await fulfillJson(route, createLoginResponse(user), 200);
   });
 
   return token;
@@ -296,16 +290,14 @@ export const mockAuthLoginRoute = async (page: Page, user: MockSessionUser, toke
 
 export const mockStudentRegisterRoute = async (
   page: Page,
-  options?: { status?: number; statusText?: string; body?: Record<string, unknown> | string; contentType?: string },
+  options?: { status?: number; body?: Record<string, unknown> | string; contentType?: string },
 ) => {
   let status = 201;
-  let statusText = 'Created';
   let body: any = createStudentRegisterSuccess();
   let contentType = 'application/json';
 
   if (options) {
     status = options.status ?? status;
-    statusText = options.statusText ?? statusText;
     body = options.body ?? body;
     contentType = options.contentType ?? contentType;
   }
@@ -314,7 +306,6 @@ export const mockStudentRegisterRoute = async (
     const response = typeof body === 'string' ? body : JSON.stringify(body);
     await route.fulfill({
       status,
-      statusText,
       body: response,
       contentType,
     });
@@ -330,7 +321,7 @@ export const mockJobPostRoutes = async (page: Page, jobs: JobFixture[] = createJ
 
     // GET /job-posts (list)
     if ((pathname === '/job-posts' || pathname.endsWith('/job-posts')) && method === 'GET' && !pathname.split('/').some((p, i) => i > 3)) {
-      await fulfillJson(route, buildJobListResponse(jobs, url.searchParams), 200, 'OK');
+      await fulfillJson(route, buildJobListResponse(jobs, url.searchParams), 200);
       return;
     }
 
@@ -341,7 +332,7 @@ export const mockJobPostRoutes = async (page: Page, jobs: JobFixture[] = createJ
       const job = jobs.find((item) => item.jobId === jobId) ?? jobs[0];
 
       if (method === 'GET') {
-        await fulfillJson(route, createJobDetailFixture(job.jobId), 200, 'OK');
+        await fulfillJson(route, createJobDetailFixture(job.jobId), 200);
         return;
       }
 
@@ -351,18 +342,18 @@ export const mockJobPostRoutes = async (page: Page, jobs: JobFixture[] = createJ
           title: job.title,
           status: job.status,
         };
-        await fulfillJson(route, payload, 200, 'OK');
+        await fulfillJson(route, payload, 200);
         return;
       }
 
       if (method === 'DELETE') {
-        await fulfillJson(route, { message: 'Job post closed successfully' }, 200, 'OK');
+        await fulfillJson(route, { message: 'Job post closed successfully' }, 200);
         return;
       }
     }
 
     if ((pathname === '/job-posts' || pathname.endsWith('/job-posts')) && method === 'POST') {
-      await fulfillJson(route, { jobId: 'job-created-1', title: 'Created Job', status: 'ACTIVE' }, 201, 'Created');
+      await fulfillJson(route, { jobId: 'job-created-1', title: 'Created Job', status: 'ACTIVE' }, 201);
       return;
     }
 
@@ -434,7 +425,7 @@ export const mockAdminDashboardRoutes = async (
       data: employers.filter((employer) => !employer.isVerified).map(mapEmployerToApiItem),
       total: employers.filter((employer) => !employer.isVerified).length,
     };
-    await fulfillJson(route, payload, 200, 'OK');
+    await fulfillJson(route, payload, 200);
   });
 
   await page.route('**/*users', async (route) => {
@@ -449,7 +440,7 @@ export const mockAdminDashboardRoutes = async (
       updatedAt: '2026-05-01T00:00:00.000Z',
     }));
 
-    await fulfillJson(route, users, 200, 'OK');
+    await fulfillJson(route, users, 200);
   });
 
   await page.route('**/*job-posts**', async (route) => {
@@ -459,7 +450,7 @@ export const mockAdminDashboardRoutes = async (
     const method = request.method();
 
     if (pathname === '/job-posts' && method === 'GET') {
-      await fulfillJson(route, buildJobListResponse(jobs, url.searchParams), 200, 'OK');
+      await fulfillJson(route, buildJobListResponse(jobs, url.searchParams), 200);
       return;
     }
 
@@ -493,7 +484,7 @@ export const mockEmployerReviewRoutes = async (
         employer.isVerified = true;
       }
 
-      await fulfillJson(route, { message: 'Employer verified successfully' }, 200, 'OK');
+      await fulfillJson(route, { message: 'Employer verified successfully' }, 200);
       return;
     }
 
@@ -504,7 +495,7 @@ export const mockEmployerReviewRoutes = async (
         data: filtered.map(mapEmployerToApiItem),
         total: filtered.length,
       };
-      await fulfillJson(route, payload, 200, 'OK');
+      await fulfillJson(route, payload, 200);
       return;
     }
 
@@ -515,7 +506,7 @@ export const mockEmployerReviewRoutes = async (
         data: filtered.map(mapEmployerToApiItem),
         total: filtered.length,
       };
-      await fulfillJson(route, payload, 200, 'OK');
+      await fulfillJson(route, payload, 200);
       return;
     }
 

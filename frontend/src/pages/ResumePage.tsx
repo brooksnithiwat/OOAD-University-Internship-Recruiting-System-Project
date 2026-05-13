@@ -31,6 +31,12 @@ const ResumePage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
+       <button
+            onClick={() => navigate('/jobs')}
+            className="mb-6 px-4 py-2 text-blue-600 hover:text-blue-800 underline"
+          >
+            ← Back to Job Board
+          </button>
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Your Resumes</h1>
         <p className="text-sm text-gray-500">Manage and upload your resume PDF files.</p>

@@ -467,7 +467,7 @@ Resume files are now stored in **Supabase Storage** (S3-backed cloud storage) in
 1. Go to https://supabase.com and sign in to your project
 2. Navigate to **Storage** → **Buckets**
 3. Click **Create a new bucket**
-4. Enter bucket name: `university-resumes`
+4. Enter bucket name: `resume`
 5. Keep **Public** checked (for direct downloads)
 6. Click **Create bucket**
 
@@ -485,7 +485,7 @@ Update `.env` file:
 # Supabase Storage Configuration
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_BUCKET_NAME=university-resumes
+SUPABASE_BUCKET_NAME=resume
 ```
 
 ### Step 4: Test Supabase Integration
@@ -502,7 +502,7 @@ Expected response:
 {
   "resumeId": "550e8400-e29b-41d4-a716-446655440000",
   "fileName": "resume.pdf",
-  "fileRef": "https://your-project.supabase.co/storage/v1/object/public/university-resumes/resumes/uuid-resume.pdf",
+  "fileRef": "https://your-project.supabase.co/storage/v1/object/public/resume/resumes/uuid-resume.pdf",
   "fileSizeBytes": 102400,
   "uploadedAt": "2026-05-13T10:30:00Z"
 }
