@@ -1,12 +1,14 @@
 import {
   Controller,
   Post,
+  Delete,
   UseGuards,
   UseInterceptors,
   UploadedFile,
   Get,
   Req,
   HttpCode,
+  Param,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResumesService } from './resumes.service';
@@ -38,5 +40,14 @@ export class ResumesController {
     const user = req.user || {};
     const userId = (user.sub || user.userId || user.studentId) as string;
     return this.service.getMyResumes(userId);
+  }
+
+  @Delete(':id')
+  @Roles(Role.STUDENT)
+  @HttpCode(200)
+  async deleteResume(@Req() req: any, @Param('id') id: string) {
+    const user = req.user || {};
+    const userId = (user.sub || user.userId || user.studentId) as string;
+    return this.service.deleteResume(userId, id);
   }
 }

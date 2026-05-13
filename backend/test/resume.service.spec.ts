@@ -14,6 +14,7 @@ describe('ResumesService', () => {
     createResume: jest.Mock;
     findByStudentId: jest.Mock;
     findById: jest.Mock;
+    deleteById: jest.Mock;
   };
   let prismaService: any;
 
@@ -22,6 +23,7 @@ describe('ResumesService', () => {
       createResume: jest.fn(),
       findByStudentId: jest.fn(),
       findById: jest.fn(),
+      deleteById: jest.fn(),
     };
 
     prismaService = {
@@ -45,6 +47,8 @@ describe('ResumesService', () => {
     jest.spyOn(fs, 'mkdirSync').mockImplementation(() => undefined as any);
     jest.spyOn(fs, 'writeFileSync').mockImplementation(() => undefined as any);
     jest.spyOn(fs, 'copyFileSync').mockImplementation(() => undefined as any);
+    jest.spyOn(fs, 'existsSync').mockImplementation(() => true);
+    jest.spyOn(fs, 'unlinkSync').mockImplementation(() => undefined as any);
 
     repository.createResume.mockResolvedValue({
       resumeId: 'resume-1',
@@ -59,6 +63,16 @@ describe('ResumesService', () => {
 
     repository.findByStudentId.mockResolvedValue([]);
     repository.findById.mockResolvedValue(null);
+    repository.deleteById.mockResolvedValue({
+      resumeId: 'resume-1',
+      studentId: 'student-1',
+      fileName: 'resume.pdf',
+      fileRef: 'uploads/uuid-1234-resume.pdf',
+      fileSizeBytes: 204800,
+      mimeType: 'application/pdf',
+      virusScanStatus: 'PENDING',
+      uploadedAt: new Date('2026-04-01T00:00:00.000Z'),
+    });
   });
 
   afterEach(() => {
@@ -236,6 +250,71 @@ describe('ResumesService', () => {
 
       await expect(service.getResumeById('user-1', 'resume-1')).rejects.toBeInstanceOf(ForbiddenException);
       expect(repository.findById).toHaveBeenCalledWith('resume-1');
+    });
+  });
+
+  describe('deleteResume', () => {
+    it('should delete resume and physical file when student is the owner', async () => {
+      repository.findById.mockResolvedValue({
+        resumeId: 'resume-1',
+        studentId: 'student-1',
+        fileName: 'resume.pdf',
+        fileRef: 'uploads/uuid-1234-resume.pdf',
+        fileSizeBytes: 204800,
+        mimeType: 'application/pdf',
+        virusScanStatus: 'PENDING',
+        uploadedAt: new Date('2026-04-01T00:00:00.000Z'),
+      });
+
+      const result = await service.deleteResume('user-1', 'resume-1');
+
+      expect(result).toEqual({ message: 'Resume deleted successfully' });
+      expect(repository.findById).toHaveBeenCalledWith('resume-1');
+      expect(repository.deleteById).toHaveBeenCalledWith('resume-1');
+      expect(fs.unlinkSync).toHaveBeenCalledWith(expect.stringContaining('uploads'));
+    });
+
+    it('should throw NotFoundException when resumeId does not exist', async () => {
+      repository.findById.mockResolvedValue(null);
+
+      await expect(service.deleteResume('user-1', 'missing-resume')).rejects.toBeInstanceOf(NotFoundException);
+      expect(repository.deleteById).not.toHaveBeenCalled();
+      expect(fs.unlinkSync).not.toHaveBeenCalled();
+    });
+
+    it('should throw ForbiddenException when resume belongs to another student', async () => {
+      repository.findById.mockResolvedValue({
+        resumeId: 'resume-1',
+        studentId: 'student-2',
+        fileName: 'resume.pdf',
+        fileRef: 'uploads/uuid-1234-resume.pdf',
+        fileSizeBytes: 204800,
+        mimeType: 'application/pdf',
+        virusScanStatus: 'PENDING',
+        uploadedAt: new Date('2026-04-01T00:00:00.000Z'),
+      });
+
+      await expect(service.deleteResume('user-1', 'resume-1')).rejects.toBeInstanceOf(ForbiddenException);
+      expect(repository.deleteById).not.toHaveBeenCalled();
+      expect(fs.unlinkSync).not.toHaveBeenCalled();
+    });
+
+    it('should delete physical file after DB record is deleted', async () => {
+      repository.findById.mockResolvedValue({
+        resumeId: 'resume-1',
+        studentId: 'student-1',
+        fileName: 'resume.pdf',
+        fileRef: 'uploads/uuid-1234-resume.pdf',
+        fileSizeBytes: 204800,
+        mimeType: 'application/pdf',
+        virusScanStatus: 'PENDING',
+        uploadedAt: new Date('2026-04-01T00:00:00.000Z'),
+      });
+
+      await service.deleteResume('user-1', 'resume-1');
+
+      expect(repository.deleteById).toHaveBeenCalledWith('resume-1');
+      expect(fs.unlinkSync).toHaveBeenCalledWith(expect.stringContaining('uploads'));
     });
   });
 });

@@ -94,4 +94,22 @@ export class ResumesRepository {
       uploadedAt: resume.uploadedAt,
     };
   }
+
+  async deleteById(resumeId: string) {
+    const prisma = this.prisma as any;
+    const deleted = await prisma.resume.delete({
+      where: { resumeId },
+    });
+
+    return {
+      resumeId: deleted.resumeId,
+      studentId: deleted.studentId,
+      fileName: deleted.fileName,
+      fileRef: deleted.fileRef,
+      fileSizeBytes: deleted.fileSizeBytes,
+      mimeType: deleted.mimeType,
+      virusScanStatus: deleted.virusScanStatus,
+      uploadedAt: deleted.uploadedAt,
+    };
+  }
 }

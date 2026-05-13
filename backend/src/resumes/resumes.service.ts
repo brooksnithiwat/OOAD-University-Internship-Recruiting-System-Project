@@ -127,4 +127,32 @@ export class ResumesService {
 
     return resume;
   }
+
+  async deleteResume(userId: string | undefined, resumeId: string) {
+    if (!userId) {
+      throw new BadRequestException('userId is required');
+    }
+
+    const studentId = await this.resolveUserIdToStudentId(userId);
+    const resume = await this.repo.findById(resumeId);
+
+    if (!resume) {
+      throw new NotFoundException('Resume not found');
+    }
+
+    if (resume.studentId !== studentId) {
+      throw new ForbiddenException('You do not have access to this resume');
+    }
+
+    await this.repo.deleteById(resumeId);
+
+    const filePath = path.join(process.cwd(), resume.fileRef);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    return {
+      message: 'Resume deleted successfully',
+    };
+  }
 }
