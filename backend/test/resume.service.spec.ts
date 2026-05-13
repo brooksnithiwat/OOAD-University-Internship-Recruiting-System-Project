@@ -3,6 +3,8 @@ import * as fs from 'fs';
 import { randomUUID } from 'crypto';
 import { ResumesRepository } from '../src/resumes/resumes.repository';
 import { ResumesService } from '../src/resumes/resumes.service';
+import { StorageFactory } from '../src/common/services/storage.factory';
+import { StorageService } from '../src/common/services/storage.interface';
 
 jest.mock('crypto', () => ({
   randomUUID: jest.fn(() => 'uuid-1234'),
@@ -17,6 +19,15 @@ describe('ResumesService', () => {
     deleteById: jest.Mock;
   };
   let prismaService: any;
+  let storageFactory: {
+    getStorageService: jest.Mock;
+  };
+  let mockStorageService: {
+    uploadFile: jest.Mock;
+    deleteFile: jest.Mock;
+    getFileUrl: jest.Mock;
+    getStorageMode: jest.Mock;
+  };
 
   beforeEach(() => {
     repository = {
@@ -32,9 +43,23 @@ describe('ResumesService', () => {
       },
     };
 
+    // Mock StorageService
+    mockStorageService = {
+      uploadFile: jest.fn(),
+      deleteFile: jest.fn(),
+      getFileUrl: jest.fn(),
+      getStorageMode: jest.fn(),
+    };
+
+    // Mock StorageFactory
+    storageFactory = {
+      getStorageService: jest.fn(() => mockStorageService),
+    };
+
     service = new ResumesService(
       repository as unknown as ResumesRepository,
       prismaService,
+      storageFactory as unknown as StorageFactory,
     );
 
     // Mock resolveUserIdToStudentId to avoid actual Prisma calls
@@ -43,6 +68,15 @@ describe('ResumesService', () => {
       if (userId === 'user-2') return 'student-2';
       throw new NotFoundException('Student not found');
     });
+
+    // Mock storage service uploadFile
+    mockStorageService.uploadFile.mockResolvedValue({
+      fileKey: 'uploads/uuid-1234-resume.pdf',
+      fileUrl: 'uploads/uuid-1234-resume.pdf',
+    });
+
+    // Mock storage service getFileUrl
+    mockStorageService.getFileUrl.mockImplementation((fileKey: string) => fileKey);
 
     jest.spyOn(fs, 'mkdirSync').mockImplementation(() => undefined as any);
     jest.spyOn(fs, 'writeFileSync').mockImplementation(() => undefined as any);
@@ -106,7 +140,7 @@ describe('ResumesService', () => {
         mimeType: 'application/pdf',
         virusScanStatus: 'PENDING',
       });
-      expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
+      expect(mockStorageService.uploadFile).toHaveBeenCalledTimes(1);
     });
 
     it('should throw BadRequestException when file is not PDF', async () => {
@@ -119,7 +153,7 @@ describe('ResumesService', () => {
 
       await expect(service.uploadResume('user-1', file)).rejects.toBeInstanceOf(BadRequestException);
       expect(repository.createResume).not.toHaveBeenCalled();
-      expect(fs.writeFileSync).not.toHaveBeenCalled();
+      expect(mockStorageService.uploadFile).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequestException when file exceeds 5MB', async () => {
@@ -132,7 +166,7 @@ describe('ResumesService', () => {
 
       await expect(service.uploadResume('user-1', file)).rejects.toBeInstanceOf(BadRequestException);
       expect(repository.createResume).not.toHaveBeenCalled();
-      expect(fs.writeFileSync).not.toHaveBeenCalled();
+      expect(mockStorageService.uploadFile).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequestException when file is missing', async () => {
@@ -143,6 +177,11 @@ describe('ResumesService', () => {
     });
 
     it('should store file with pattern {uuid}-{originalname}', async () => {
+      mockStorageService.uploadFile.mockResolvedValueOnce({
+        fileKey: 'uploads/uuid-1234-my_resume_final.pdf',
+        fileUrl: 'uploads/uuid-1234-my_resume_final.pdf',
+      });
+      
       const file: any = {
         originalname: 'my resume final.pdf',
         mimetype: 'application/pdf',
@@ -152,8 +191,12 @@ describe('ResumesService', () => {
 
       await service.uploadResume('user-1', file);
 
-      const writtenPath = (fs.writeFileSync as jest.Mock).mock.calls[0][0] as string;
-      expect(writtenPath).toContain('uuid-1234-my_resume_final.pdf');
+      expect(mockStorageService.uploadFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          originalname: 'my resume final.pdf',
+          mimetype: 'application/pdf',
+        })
+      );
       expect(repository.createResume).toHaveBeenCalledWith(
         expect.objectContaining({
           fileRef: 'uploads/uuid-1234-my_resume_final.pdf',
@@ -271,7 +314,7 @@ describe('ResumesService', () => {
       expect(result).toEqual({ message: 'Resume deleted successfully' });
       expect(repository.findById).toHaveBeenCalledWith('resume-1');
       expect(repository.deleteById).toHaveBeenCalledWith('resume-1');
-      expect(fs.unlinkSync).toHaveBeenCalledWith(expect.stringContaining('uploads'));
+      expect(mockStorageService.deleteFile).toHaveBeenCalledWith('uploads/uuid-1234-resume.pdf');
     });
 
     it('should throw NotFoundException when resumeId does not exist', async () => {
@@ -279,7 +322,7 @@ describe('ResumesService', () => {
 
       await expect(service.deleteResume('user-1', 'missing-resume')).rejects.toBeInstanceOf(NotFoundException);
       expect(repository.deleteById).not.toHaveBeenCalled();
-      expect(fs.unlinkSync).not.toHaveBeenCalled();
+      expect(mockStorageService.deleteFile).not.toHaveBeenCalled();
     });
 
     it('should throw ForbiddenException when resume belongs to another student', async () => {
@@ -296,7 +339,7 @@ describe('ResumesService', () => {
 
       await expect(service.deleteResume('user-1', 'resume-1')).rejects.toBeInstanceOf(ForbiddenException);
       expect(repository.deleteById).not.toHaveBeenCalled();
-      expect(fs.unlinkSync).not.toHaveBeenCalled();
+      expect(mockStorageService.deleteFile).not.toHaveBeenCalled();
     });
 
     it('should delete physical file after DB record is deleted', async () => {
@@ -314,7 +357,7 @@ describe('ResumesService', () => {
       await service.deleteResume('user-1', 'resume-1');
 
       expect(repository.deleteById).toHaveBeenCalledWith('resume-1');
-      expect(fs.unlinkSync).toHaveBeenCalledWith(expect.stringContaining('uploads'));
+      expect(mockStorageService.deleteFile).toHaveBeenCalledWith('uploads/uuid-1234-resume.pdf');
     });
   });
 });
