@@ -5,6 +5,12 @@ import ResumeStatusBadge from './ResumeStatusBadge';
 const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL ?? '';
 
 function buildFileUrl(fileRef: string) {
+  // If fileRef is already a full URL (from R2), return as-is
+  if (fileRef.startsWith('http://') || fileRef.startsWith('https://')) {
+    return fileRef;
+  }
+  
+  // Otherwise, prepend API base URL (for backward compatibility with local storage)
   const base = API_BASE_URL.replace(/\/$/, '');
   const filePath = fileRef.replace(/^\//, '');
   return base ? `${base}/${filePath}` : `/${filePath}`;

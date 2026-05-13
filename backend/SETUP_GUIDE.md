@@ -447,4 +447,160 @@ For issues or improvements, refer to the implementation in the respective files.
 
 ---
 
+## 🪣 Supabase Storage File Storage Setup
+
+### Overview
+Resume files are now stored in **Supabase Storage** (S3-backed cloud storage) instead of local filesystem. This provides:
+- ✅ Persistent storage across server redeploys
+- ✅ Multi-server deployment support
+- ✅ Automatic backups and redundancy
+- ✅ Tight integration with PostgreSQL (same Supabase project)
+- ✅ Easy to manage from dashboard
+- ✅ Free tier available with generous limits
+
+### Prerequisites
+- Supabase account (free tier available at https://supabase.com)
+- PostgreSQL database already hosted on Supabase
+
+### Step 1: Create Supabase Storage Bucket
+
+1. Go to https://supabase.com and sign in to your project
+2. Navigate to **Storage** → **Buckets**
+3. Click **Create a new bucket**
+4. Enter bucket name: `university-resumes`
+5. Keep **Public** checked (for direct downloads)
+6. Click **Create bucket**
+
+### Step 2: Get Supabase Credentials
+
+1. Go to **Settings** → **API** in your Supabase project
+2. Copy:
+   - **Project URL** (e.g., `https://your-project.supabase.co`)
+   - **Anon/Public Key** (under "Project API keys")
+
+### Step 3: Configure Environment Variables
+
+Update `.env` file:
+```bash
+# Supabase Storage Configuration
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_BUCKET_NAME=university-resumes
+```
+
+### Step 4: Test Supabase Integration
+
+#### Upload Resume
+```bash
+curl -X POST http://localhost:3000/resumes/upload \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -F "file=@resume.pdf"
+```
+
+Expected response:
+```json
+{
+  "resumeId": "550e8400-e29b-41d4-a716-446655440000",
+  "fileName": "resume.pdf",
+  "fileRef": "https://your-project.supabase.co/storage/v1/object/public/university-resumes/resumes/uuid-resume.pdf",
+  "fileSizeBytes": 102400,
+  "uploadedAt": "2026-05-13T10:30:00Z"
+}
+```
+
+#### Get Resume List
+```bash
+curl -X GET http://localhost:3000/resumes \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+Response includes full Supabase Storage URLs in `fileRef` field.
+
+#### Download Resume
+The `fileRef` URL can be opened directly in browser - no authentication needed for downloads.
+
+#### Delete Resume
+```bash
+curl -X DELETE http://localhost:3000/resumes/{resumeId} \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+File is automatically deleted from Supabase Storage.
+
+### Step 5: Deploy to Production
+
+#### On Render.com (or similar)
+
+1. Add environment variables to deployment:
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+   - `SUPABASE_BUCKET_NAME`
+
+2. No need for persistent disk - files go to R2
+
+3. Multiple server instances will share the same R2 bucket automatically
+
+#### On Docker
+
+Include R2 environment variables in docker-compose.yml:
+```yaml
+services:
+  backend:
+    environment:
+2. Include environment variables in docker-compose.yml:
+```yaml
+services:
+  backend:
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_BUCKET_NAME=${SUPABASE_BUCKET_NAME}
+```
+
+### Implementation Details
+
+**Files Modified:**
+- `src/common/services/r2-storage.service.ts` - Supabase Storage client configuration
+- `src/resumes/resumes.service.ts` - Upload/delete using Supabase
+- `src/resumes/resumes.module.ts` - Removed local ServeStaticModule
+- `prisma/migrations/20260513_migrate_resumes_to_r2/` - Migration note
+
+**How It Works:**
+1. User uploads file → backend validates (PDF, <5MB)
+2. Backend uploads to Supabase Storage with UUID-prefixed filename
+3. Supabase public URL stored in database `fileRef` column
+4. Download: frontend links directly to Supabase URL (no auth needed, bucket is public)
+5. Delete: backend deletes from Supabase Storage + database
+
+### Troubleshooting Supabase
+
+| Error | Solution |
+|-------|----------|
+| `Missing Supabase configuration` | Verify SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_BUCKET_NAME are set |
+| `Failed to upload file to Supabase` | Check Supabase project URL and anon key are correct |
+| `401 Unauthorized` | Verify SUPABASE_ANON_KEY is correct anon/public key (not service key) |
+| `404 Not Found` | Check bucket name is correct and exists in Supabase Storage |
+| `File not downloadable` | Ensure bucket is marked as **Public** in Supabase Storage settings |
+
+### Migration from Local Storage
+
+If you have existing resumes in `./uploads`:
+
+1. Create new Supabase Storage bucket
+2. Upload existing files to bucket via Supabase dashboard or CLI
+3. Update database `fileRef` values to Supabase URLs
+4. Deploy updated code
+5. Remove `./uploads` directory
+
+### Supabase Storage vs Alternatives
+
+| Provider | Cost | Setup | Integration |
+|----------|------|-------|-------------|
+| **Supabase** | Free tier (5GB) | 5 min | ⭐ Best if using Supabase DB |
+| Cloudflare R2 | $0.015/GB | 10 min | S3-compatible |
+| AWS S3 | $0.023/GB | 15 min | Most mature |
+| Google Cloud | Varies | 15 min | Good GCP integration |
+
+---
+
 **Status**: ✅ Phase 1 Complete - Ready for Integration Testing

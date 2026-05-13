@@ -1,0 +1,6 @@
+-- Note: Schema remains unchanged, but file storage changes from local filesystem to Cloudflare R2
+-- fileRef column now stores R2 fileKey format: "resumes/{uuid}-{filename}.pdf"
+-- Previously stored: "uploads/{uuid}-{filename}.pdf"
+-- 
+-- No database changes needed - this is a data migration note.
+-- All resume files should be migrated from local ./uploads to Cloudflare R2 before deploying this change.

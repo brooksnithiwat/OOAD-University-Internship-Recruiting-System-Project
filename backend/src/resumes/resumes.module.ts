@@ -3,18 +3,21 @@ import { ResumesController } from './resumes.controller';
 import { ResumesService } from './resumes.service';
 import { ResumesRepository } from './resumes.repository';
 import { PrismaService } from '../prisma/prisma.service';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import * as path from 'path';
+import { LocalStorageService } from '../common/services/local-storage.service';
+import { SupabaseStorageService } from '../common/services/supabase-storage.service';
+import { StorageFactory } from '../common/services/storage.factory';
 
 @Module({
-  imports: [
-    ServeStaticModule.forRoot({
-      rootPath: path.join(process.cwd(), 'uploads'),
-      serveRoot: '/uploads',
-    }),
-  ],
   controllers: [ResumesController],
-  providers: [ResumesService, ResumesRepository, PrismaService],
+  providers: [
+    ResumesService,
+    ResumesRepository,
+    PrismaService,
+    LocalStorageService,
+    SupabaseStorageService,
+    StorageFactory,
+  ],
   exports: [ResumesService],
 })
 export class ResumesModule {}
+

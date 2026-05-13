@@ -1,20 +1,23 @@
 import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ResumesRepository } from './resumes.repository';
 import { PrismaService } from '../prisma/prisma.service';
-import { randomUUID } from 'crypto';
-import * as fs from 'fs';
-import * as path from 'path';
+import { StorageFactory } from '../common/services/storage.factory';
+import { StorageService } from '../common/services/storage.interface';
 import { ResumeUploadFile } from '../common/pipes/file-validation.pipe';
 
 @Injectable()
 export class ResumesService {
-  private readonly UPLOAD_DIR = path.join(process.cwd(), 'uploads');
   private readonly MAX_SIZE = 5 * 1024 * 1024; // 5MB
+  private storage: StorageService;
 
   constructor(
     private readonly repo: ResumesRepository,
     private readonly prisma: PrismaService,
-  ) {}
+    private readonly storageFactory: StorageFactory,
+  ) {
+    // Get the appropriate storage service based on configuration
+    this.storage = this.storageFactory.getStorageService();
+  }
 
   private validateResumeFile(file: ResumeUploadFile) {
     if (!file) {
@@ -49,37 +52,27 @@ export class ResumesService {
     }
     this.validateResumeFile(file);
 
+    // Ensure buffer exists (required for upload)
+    if (!file.buffer) {
+      throw new BadRequestException('Uploaded file buffer is not available');
+    }
+
     // Resolve userId to studentId
     const studentId = await this.resolveUserIdToStudentId(userId);
 
-    // ensure upload dir
-    fs.mkdirSync(this.UPLOAD_DIR, { recursive: true });
-
-    const id = randomUUID();
-    const safeOriginal = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const filename = `${id}-${safeOriginal}`;
-    const filePath = path.join(this.UPLOAD_DIR, filename);
-
-    if (!file.buffer) {
-      // If the file was not provided in memory, attempt to move from path
-      if ((file as any).path) {
-        const source = (file as any).path;
-        fs.copyFileSync(source, filePath);
-      } else {
-        throw new BadRequestException('Uploaded file is not available');
-      }
-    } else {
-      fs.writeFileSync(filePath, file.buffer);
-    }
-
-    const fileRef = `uploads/${filename}`;
+    // Upload to storage (local or Supabase, determined by factory)
+    const { fileKey, fileUrl } = await this.storage.uploadFile({
+      buffer: file.buffer,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+    });
 
     let created;
     try {
       created = await this.repo.createResume({
         studentId,
         fileName: file.originalname,
-        fileRef,
+        fileRef: fileKey, // Store only the fileKey in DB
         fileSizeBytes: file.size,
         mimeType: file.mimetype,
         virusScanStatus: 'PENDING',
@@ -91,11 +84,11 @@ export class ResumesService {
       throw err;
     }
 
-    // Ensure virusScanStatus defaults to PENDING via Prisma schema
+    // Return response with full fileUrl for frontend to download
     return {
       resumeId: created.resumeId,
       fileName: created.fileName,
-      fileRef: created.fileRef,
+      fileRef: this.storage.getFileUrl(created.fileRef), // Convert fileKey to URL for response
       fileSizeBytes: created.fileSizeBytes,
       uploadedAt: created.uploadedAt,
     };
@@ -106,7 +99,13 @@ export class ResumesService {
       throw new BadRequestException('userId is required');
     }
     const studentId = await this.resolveUserIdToStudentId(userId);
-    return this.repo.findByStudentId(studentId);
+    const resumes = await this.repo.findByStudentId(studentId);
+    
+    // Transform fileRef (stored as fileKey) to fileUrl for frontend
+    return resumes.map((resume: any) => ({
+      ...resume,
+      fileRef: this.storage.getFileUrl(resume.fileRef),
+    }));
   }
 
   async getResumeById(userId: string | undefined, resumeId: string) {
@@ -125,6 +124,7 @@ export class ResumesService {
       throw new ForbiddenException('You do not have access to this resume');
     }
 
+    // fileRef in DB is already the full URL/path
     return resume;
   }
 
@@ -144,12 +144,11 @@ export class ResumesService {
       throw new ForbiddenException('You do not have access to this resume');
     }
 
-    await this.repo.deleteById(resumeId);
+    // Delete from storage using fileRef (which is the fileKey for both modes)
+    await this.storage.deleteFile(resume.fileRef);
 
-    const filePath = path.join(process.cwd(), resume.fileRef);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
+    // Delete from database
+    await this.repo.deleteById(resumeId);
 
     return {
       message: 'Resume deleted successfully',
