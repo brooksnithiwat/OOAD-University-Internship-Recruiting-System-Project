@@ -10,19 +10,16 @@ interface DepartmentStudentTableProps {
 export const DepartmentStudentTable: React.FC<DepartmentStudentTableProps> = ({
   students,
   isLoading,
-  onApproveSuccess,
-  onApproveError,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredStudents = useMemo(() => {
     if (!searchQuery.trim()) return students;
     const query = searchQuery.toLowerCase();
-    return students.filter(
-      (student) =>
-        student.fullName.toLowerCase().includes(query) ||
-        student.studentCode.toLowerCase().includes(query)
-    );
+    return students.filter((student) => {
+      const fullName = `${student.firstName} ${student.lastName}`;
+      return fullName.toLowerCase().includes(query) || student.studentCode.toLowerCase().includes(query);
+    });
   }, [students, searchQuery]);
 
   if (isLoading) {
@@ -71,19 +68,21 @@ export const DepartmentStudentTable: React.FC<DepartmentStudentTableProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredStudents.map((student) => (
-                <tr key={student.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-gray-900">{student.studentCode}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{student.fullName}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{student.faculty}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{student.gpa.toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{student.academicYear}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <EligibilityBadge status={student.eligibilityStatus} />
-                  </td>
-                  
-                </tr>
-              ))}
+              {filteredStudents.map((student) => {
+                const fullName = `${student.firstName} ${student.lastName}`;
+                return (
+                  <tr key={student.studentId} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-sm text-gray-900">{student.studentCode}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{fullName}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{student.faculty}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{student.gpa.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{student.academicYear}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <EligibilityBadge status={student.eligibilityStatus} />
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

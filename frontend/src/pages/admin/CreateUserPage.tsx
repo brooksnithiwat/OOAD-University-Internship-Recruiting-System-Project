@@ -3,7 +3,6 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { useAuth } from '@/contexts/auth';
 import { useMutation } from '@tanstack/react-query';
-import { registerStudent, registerEmployer } from '@/services/authService';
 import { adminUserService } from '@/services/adminUser.service';
 
 export const CreateUserPage: React.FC = () => {
@@ -18,8 +17,6 @@ export const CreateUserPage: React.FC = () => {
   const [department, setDepartment] = useState('');
 
   const createStaff = useMutation({ mutationFn: (payload: any) => adminUserService.createStaffUser(payload) });
-  const registerStudentMutation = useMutation({ mutationFn: (payload: any) => registerStudent(payload) });
-  const registerEmployerMutation = useMutation({ mutationFn: (payload: any) => registerEmployer(payload) });
 
   if (isAuthLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (user?.role !== 'SYSTEM_ADMINISTRATOR') return <Navigate to="/jobs" replace />;
@@ -28,38 +25,16 @@ export const CreateUserPage: React.FC = () => {
     e.preventDefault();
 
     try {
-      if (role === 'STUDENT') {
-        await registerStudentMutation.mutateAsync({
-          email,
-          password: password || 'TempPass123!',
-          firstName,
-          lastName,
-          studentCode: '',
-          faculty: '',
-          department: '',
-          academicYear: '1',
-          gpa: '0',
-        });
-      } else if (role === 'EMPLOYER') {
-        await registerEmployerMutation.mutateAsync({
-          email,
-          password: password || 'TempPass123!',
-          companyName: firstName || 'Company',
-          industry: '',
-          website: '',
-          contactName: lastName,
-          contactPhone: '',
-        });
-      } else {
-        await createStaff.mutateAsync({
-          email,
-          password: password || 'TempPass123!',
-          firstName,
-          lastName,
-          department: department || '',
-          role,
-        });
-      }
+      // This page is intended to create staff accounts only (Coordinator or Department Head)
+      await createStaff.mutateAsync({
+        email,
+        password: password || 'TempPass123!',
+        firstName,
+        lastName,
+        department: department || '',
+        role,
+      });
+    
 
       navigate('/admin/users');
     } catch (err) {

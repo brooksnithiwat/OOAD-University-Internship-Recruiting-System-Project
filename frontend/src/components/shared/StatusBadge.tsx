@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserStatus } from '../services/adminUser.service';
+import { UserStatus } from '../../services/adminUser.service';
 
 interface StatusBadgeProps {
   status: UserStatus;

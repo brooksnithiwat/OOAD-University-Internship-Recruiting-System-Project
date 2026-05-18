@@ -45,7 +45,7 @@ export const useUpdateEligibility = () => {
             // Merge: keep all existing fields but update the status
             return {
               ...student,
-              eligibilityStatus: (data.newStatus as 'ELIGIBLE' | 'PENDING'),
+              eligibilityStatus: (data.eligibilityStatus as 'ELIGIBLE' | 'PENDING'),
             };
           }
           return student;

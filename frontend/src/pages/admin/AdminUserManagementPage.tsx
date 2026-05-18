@@ -1,9 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAllUsers } from '../../hooks/useAdminUsers';
 import { UserTable } from '../../components/admin/UserTable';
 import { CreateStaffModal } from '../../components/admin/CreateStaffModal';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import axios from '../../lib/axios';
 
 interface Department {
@@ -13,7 +13,7 @@ interface Department {
 
 export const AdminUserManagementPage: React.FC = () => {
   const navigate = useNavigate();
-  const authContext = useContext(AuthContext);
+  const { user: currentUser } = useAuth();
   const { data: users = [], isLoading, error } = useAllUsers();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -22,7 +22,7 @@ export const AdminUserManagementPage: React.FC = () => {
   );
 
   // Check authorization
-  if (authContext?.user?.role !== 'SYSTEM_ADMINISTRATOR') {
+  if (currentUser?.role !== 'SYSTEM_ADMINISTRATOR') {
     navigate('/jobs');
     return null;
   }
@@ -126,7 +126,7 @@ export const AdminUserManagementPage: React.FC = () => {
           <UserTable
             users={users}
             isLoading={isLoading}
-            currentUserId={authContext?.user?.id || ''}
+            currentUserId={currentUser?.userId || ''}
             onDeactivateSuccess={handleDeactivateSuccess}
             onDeactivateError={handleDeactivateError}
           />

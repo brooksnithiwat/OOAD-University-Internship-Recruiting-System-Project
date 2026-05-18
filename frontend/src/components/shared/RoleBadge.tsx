@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserRole } from '../services/adminUser.service';
+import { UserRole } from '../../services/adminUser.service';
 
 interface RoleBadgeProps {
   role: UserRole;
