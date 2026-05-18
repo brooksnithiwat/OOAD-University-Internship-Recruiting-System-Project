@@ -6,16 +6,27 @@ import { useJobPost, useUpdateJobPost, useCloseJobPost } from '../hooks/useJobPo
 import { EditJobModal } from '../components/jobs/EditJobModal';
 import { JobSkillBadge } from '../components/jobs/JobSkillBadge';
 import { CreateJobPostRequest } from '../services/jobPost.service';
+import { ApplyModal } from '../components/applications/ApplyModal';
 
 export const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; message: string }[]>([]);
 
   const { data: jobDetail, isLoading, isError } = useJobPost(id);
   const updateJobPost = useUpdateJobPost(id || '');
   const closeJobPost = useCloseJobPost(id || '');
+
+  const addToast = (type: 'success' | 'error', message: string) => {
+    const toastId = Date.now();
+    setToasts((currentToasts) => [...currentToasts, { id: toastId, type, message }]);
+    window.setTimeout(() => {
+      setToasts((currentToasts) => currentToasts.filter((toast) => toast.id !== toastId));
+    }, 3000);
+  };
 
   if (isLoading) {
     return (
@@ -67,11 +78,35 @@ export const JobDetailPage: React.FC = () => {
     }
   };
 
+  const handleApplicationSubmitted = () => {
+    addToast('success', 'Application submitted successfully');
+  };
+
+  const handleApplicationError = (message: string) => {
+    addToast('error', message);
+  };
+
   return (
     <>
       <Header />
       <div className="min-h-screen bg-gray-50 px-4 py-8">
         <div className="max-w-4xl mx-auto">
+          {toasts.length > 0 && (
+            <div className="fixed right-4 top-4 z-50 space-y-2">
+              {toasts.map((toast) => (
+                <div
+                  key={toast.id}
+                  className={`min-w-72 rounded-xl border px-4 py-3 text-sm shadow-lg ${
+                    toast.type === 'success'
+                      ? 'border-green-200 bg-green-50 text-green-800'
+                      : 'border-red-200 bg-red-50 text-red-800'
+                  }`}
+                >
+                  {toast.message}
+                </div>
+              ))}
+            </div>
+          )}
           <button
             onClick={() => navigate('/jobs')}
             className="mb-6 px-4 py-2 text-blue-600 hover:text-blue-800 underline"
@@ -168,7 +203,11 @@ export const JobDetailPage: React.FC = () => {
 
           <div className="flex gap-3 flex-wrap">
             {isStudent && (
-              <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <button
+                type="button"
+                onClick={() => setShowApplyModal(true)}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
                 Apply Now
               </button>
             )}
@@ -200,6 +239,18 @@ export const JobDetailPage: React.FC = () => {
         jobDetail={jobDetail}
         onSubmit={handleUpdateJobPost}
         isLoading={updateJobPost.isPending}
+      />
+
+      <ApplyModal
+        isOpen={showApplyModal}
+        jobId={jobDetail.jobId}
+        jobTitle={jobDetail.title}
+        companyName={jobDetail.employer.companyName}
+        minGpa={jobDetail.minGpa}
+        studentGpa={user?.gpa}
+        onClose={() => setShowApplyModal(false)}
+        onSubmitted={handleApplicationSubmitted}
+        onError={handleApplicationError}
       />
     </div>
     </>

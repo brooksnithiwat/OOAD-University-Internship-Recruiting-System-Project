@@ -9,6 +9,8 @@ import ResumePage from './pages/ResumePage';
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
 import { UnverifiedEmployersPage } from '@/pages/admin/UnverifiedEmployersPage';
 import { UsersPage } from '@/pages/admin/UsersPage';
+import { MyApplicationsPage } from './pages/MyApplicationsPage';
+import { ApplicantListPage } from './pages/ApplicantListPage';
 
 const HomePage = () => {
   const { logout } = useAuth();
@@ -99,6 +101,22 @@ export const App = () => {
         element={
           <PrivateRoute>
             <ResumePage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/applications/my"
+        element={
+          <PrivateRoute>
+            <MyApplicationsPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/job-posts/:id/applications"
+        element={
+          <PrivateRoute>
+            <ApplicantListPage />
           </PrivateRoute>
         }
       />
