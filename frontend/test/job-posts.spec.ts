@@ -22,20 +22,6 @@ test.describe('Job posts flows', () => {
     await expect(page.getByRole('heading', { name: 'Mobile App Intern' })).toBeVisible();
   });
 
-  test('employer can see and use the create job post button', async ({ page }) => {
-    await mockJobPostRoutes(page, createJobFixtures());
-    await seedAuthSession(page, VERIFIED_EMPLOYER);
-
-    await page.goto(`${APP_BASE_URL}/jobs`);
-
-    await expect(page.getByRole('button', { name: 'Create Job Post' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
-    await page.getByRole('button', { name: 'Create Job Post' }).click();
-
-    await expect(page).toHaveURL(`${APP_BASE_URL}/jobs/create`);
-    await expect(page.getByRole('heading', { name: 'Post a New Internship' })).toBeVisible();
-  });
-
   test('create job post errors show the backend message', async ({ page }) => {
     await seedAuthSession(page, VERIFIED_EMPLOYER);
 

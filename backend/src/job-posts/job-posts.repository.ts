@@ -263,4 +263,107 @@ export class JobPostsRepository {
       },
     });
   }
+
+  async findByEmployerId(
+    employerId: string,
+    filters: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      location?: string;
+      minGpa?: number;
+    } = {},
+  ): Promise<{
+    data: Array<{
+      jobId: string;
+      title: string;
+      location: string | null;
+      minGpa: number;
+      durationWeeks: number;
+      applicationDeadline: string;
+      companyName: string;
+      skills: string[];
+      status: string;
+    }>;
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const page = filters.page || 1;
+    const limit = filters.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const whereClause: any = {
+      employerId,
+    };
+
+    if (filters.location) {
+      whereClause.location = {
+        contains: filters.location,
+        mode: 'insensitive',
+      };
+    }
+
+    if (filters.minGpa !== undefined) {
+      whereClause.minGpa = {
+        lte: filters.minGpa,
+      };
+    }
+
+    if (filters.search) {
+      whereClause.OR = [
+        {
+          title: {
+            contains: filters.search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          description: {
+            contains: filters.search,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+
+    const [jobPosts, total] = await Promise.all([
+      this.prisma.jobPost.findMany({
+        where: whereClause,
+        include: {
+          employer: {
+            select: {
+              companyName: true,
+            },
+          },
+          skills: true,
+        },
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.jobPost.count({
+        where: whereClause,
+      }),
+    ]);
+
+    return {
+      data: jobPosts.map((job) => ({
+        jobId: job.jobId,
+        title: job.title,
+        location: job.location,
+        minGpa: job.minGpa.toNumber(),
+        durationWeeks: job.durationWeeks,
+        applicationDeadline: job.applicationDeadline.toISOString().split('T')[0],
+        companyName: job.employer.companyName,
+        skills: job.skills.map((s) => s.skill),
+        status: job.status,
+      })),
+      total,
+      page,
+      limit,
+    };
+  }
 }

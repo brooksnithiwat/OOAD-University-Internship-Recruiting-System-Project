@@ -87,7 +87,7 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange, isAdmin
           />
         </div>
 
-        {!isAdmin && user?.role !== 'EMPLOYER' && (
+        {user?.role === 'STUDENT' && (
           <div>
             <label className="flex items-center gap-2 mt-8 cursor-pointer">
               <input

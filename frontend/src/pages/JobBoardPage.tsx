@@ -10,6 +10,7 @@ import { BackToAdminDashboardLink } from '@/components/admin/BackToAdminDashboar
 export const JobBoardPage: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'SYSTEM_ADMINISTRATOR';
+  const isEmployer = user?.role === 'EMPLOYER';
   const [filters, setFilters] = useState({
     search: '',
     location: '',
@@ -25,7 +26,7 @@ export const JobBoardPage: React.FC = () => {
     }
   }, [isAdmin]);
 
-  const { data, isLoading, isError } = useJobPosts(filters);
+  const { data, isLoading, isError } = useJobPosts(filters, isEmployer);
 
   const handleFiltersChange = (newFilters: any) => {
     setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
@@ -66,9 +67,13 @@ export const JobBoardPage: React.FC = () => {
         )}
 
         <div className="mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Job Board</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {isEmployer ? 'My Job Posts' : 'Job Board'}
+          </h1>
           <p className="text-gray-600">
-            Explore internship opportunities from verified employers
+            {isEmployer
+              ? 'Manage your job postings and view applicants'
+              : 'Explore internship opportunities from verified employers'}
           </p>
         </div>
 

@@ -1,9 +1,12 @@
 import { useAuth } from '../contexts/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isCoordinatorPage = location.pathname.startsWith('/coordinator');
 
   const handleLogout = () => {
     logout();
@@ -25,12 +28,20 @@ export const Header = () => {
 
           <div className="flex w-full gap-2 sm:w-auto sm:justify-end">
           {user?.role === 'STUDENT' && (
-            <button
-              onClick={() => navigate('/profile/resumes')}
-              className="flex-1 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 sm:flex-none"
-            >
-              Resumes
-            </button>
+            <>
+              <button
+                onClick={() => navigate('/applications/my')}
+                className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:flex-none"
+              >
+                Application Tracking
+              </button>
+              <button
+                onClick={() => navigate('/profile/resumes')}
+                className="flex-1 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 sm:flex-none"
+              >
+                Resumes
+              </button>
+            </>
           )}
           {user?.role === 'SYSTEM_ADMINISTRATOR' && (
             <button
@@ -46,6 +57,22 @@ export const Header = () => {
               className="flex-1 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 sm:flex-none"
             >
               Create Job Post
+            </button>
+          )}
+          {user?.role === 'UNIVERSITY_COORDINATOR' && (
+            <button
+              onClick={() => navigate(isCoordinatorPage ? '/jobs' : '/coordinator')}
+              className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:flex-none"
+            >
+              {isCoordinatorPage ? 'Jobs Page' : 'Dashboard'}
+            </button>
+          )}
+          {user?.role === 'DEPARTMENT_HEAD' && (
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:flex-none"
+            >
+              Dashboard
             </button>
           )}
           <button

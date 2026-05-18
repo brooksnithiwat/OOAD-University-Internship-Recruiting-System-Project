@@ -94,6 +94,35 @@ employer: {
     await this.repository.close(jobId);
   }
 
+  async getEmployerJobPosts(
+    userId: string,
+    filters: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      location?: string;
+      minGpa?: number;
+    } = {},
+  ): Promise<{
+    data: Array<{
+      jobId: string;
+      title: string;
+      location: string | null;
+      minGpa: number;
+      durationWeeks: number;
+      applicationDeadline: string;
+      companyName: string;
+      skills: string[];
+      status: string;
+    }>;
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const employerId = await this.getEmployerIdByUserId(userId);
+    return this.repository.findByEmployerId(employerId, filters);
+  }
+
   private async validateEmployerIsVerified(userId: string): Promise<string> {
     const employer = await this.prisma.employer.findUnique({
       where: { userId },

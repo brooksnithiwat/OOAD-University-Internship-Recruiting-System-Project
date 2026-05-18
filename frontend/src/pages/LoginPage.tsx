@@ -44,9 +44,13 @@ export const LoginPage = () => {
         response.accessToken,
       );
 
-      // Redirect admin users to admin dashboard
+      // Redirect users based on role
       if (response.role === 'SYSTEM_ADMINISTRATOR') {
         navigate('/admin');
+      } else if (response.role === 'UNIVERSITY_COORDINATOR') {
+        navigate('/coordinator');
+      } else if (response.role === 'DEPARTMENT_HEAD') {
+        navigate('/dashboard');
       } else {
         navigate('/jobs');
       }

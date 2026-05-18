@@ -1,10 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { jobPostService, JobPostFilters, JobPostListResponse, JobPostDetail, CreateJobPostRequest } from '../services/jobPost.service';
+import { useAuth } from '../contexts/auth';
 
-export const useJobPosts = (filters: JobPostFilters) => {
+export const useJobPosts = (filters: JobPostFilters, isEmployer: boolean = false) => {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ['job-posts', filters],
-    queryFn: () => jobPostService.getJobPosts(filters),
+    queryKey: ['job-posts', filters, isEmployer, user?.userId],
+    queryFn: () => isEmployer ? jobPostService.getEmployerJobPosts(filters) : jobPostService.getJobPosts(filters),
     staleTime: 60000,
   });
 };

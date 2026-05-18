@@ -61,6 +61,40 @@ export class JobPostsController {
     return this.jobPostsService.getJobPosts(searchJobPostDto);
   }
 
+  @Get('my')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(RolesGuard)
+  @Roles(Role.EMPLOYER)
+  async getEmployerJobPosts(
+    @Query() query: any,
+    @Request() req: any,
+  ): Promise<{
+    data: Array<{
+      jobId: string;
+      title: string;
+      location: string | null;
+      minGpa: number;
+      durationWeeks: number;
+      applicationDeadline: string;
+      companyName: string;
+      skills: string[];
+      status: string;
+    }>;
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const userId = req.user.userId;
+    const filters = {
+      page: query.page ? parseInt(query.page) : 1,
+      limit: query.limit ? parseInt(query.limit) : 10,
+      search: query.search,
+      location: query.location,
+      minGpa: query.minGpa ? parseFloat(query.minGpa) : undefined,
+    };
+    return this.jobPostsService.getEmployerJobPosts(userId, filters);
+  }
+
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async getJobPostDetail(

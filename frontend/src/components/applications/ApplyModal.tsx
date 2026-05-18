@@ -81,7 +81,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({
         message === 'Student has already applied to this job'
           ? 'You have already applied to this job'
           : message === 'Student is not eligible to apply'
-            ? 'You are not eligible to apply. Please contact your coordinator.'
+            ? 'You are not eligible to apply. Please contact your coordinator to change your eligibility status.'
             : message,
       );
     }

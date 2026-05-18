@@ -18,11 +18,18 @@ export interface StudentDepartmentData {
   department: string | null;
 }
 
-export interface ApprovalVerificationData {
-  verificationId: string;
-  previousStatus: string;
-  newStatus: string;
-  verifiedAt: Date;
+export interface InternshipReportData {
+  studentCode: string;
+  firstName: string;
+  lastName: string;
+  faculty: string | null;
+  department: string | null;
+  gpa: string;
+  companyName: string;
+  jobTitle: string;
+  startDate: string | null;
+  endDate: string | null;
+  acceptedAt: Date;
 }
 
 @Injectable()
@@ -98,41 +105,55 @@ export class DepartmentRepository {
     };
   }
 
-  async approveStudent(
-    studentId: string,
-    userId: string,
-    previousStatus: string,
-    notes?: string,
-  ): Promise<ApprovalVerificationData> {
-    const result = await this.prisma.$transaction(async (tx) => {
-      // Update student eligibility status to ELIGIBLE
-      await tx.student.update({
-        where: { studentId },
-        data: {
-          eligibilityStatus: 'ELIGIBLE' as any,
+  async getInternshipReports(department: string): Promise<InternshipReportData[]> {
+    const internships = await this.prisma.application.findMany({
+      where: {
+        status: 'ACCEPTED',
+        student: {
+          department,
         },
-      });
-
-      // Record verification log (using userId as verifiedBy)
-      const verification = await tx.eligibilityVerification.create({
-        data: {
-          studentId,
-          verifiedBy: userId,
-          previousStatus,
-          newStatus: 'ELIGIBLE',
-          notes: notes || null,
+      },
+      select: {
+        student: {
+          select: {
+            studentCode: true,
+            firstName: true,
+            lastName: true,
+            faculty: true,
+            department: true,
+            gpa: true,
+          },
         },
-        select: {
-          verificationId: true,
-          previousStatus: true,
-          newStatus: true,
-          verifiedAt: true,
+        jobPost: {
+          select: {
+            title: true,
+            durationWeeks: true,
+            employer: {
+              select: {
+                companyName: true,
+              },
+            },
+          },
         },
-      });
-
-      return verification;
+        submittedAt: true,
+      },
+      orderBy: {
+        submittedAt: 'desc',
+      },
     });
 
-    return result;
+    return internships.map((internship) => ({
+      studentCode: internship.student.studentCode,
+      firstName: internship.student.firstName,
+      lastName: internship.student.lastName,
+      faculty: internship.student.faculty,
+      department: internship.student.department,
+      gpa: internship.student.gpa.toString(),
+      companyName: internship.jobPost.employer.companyName,
+      jobTitle: internship.jobPost.title,
+      startDate: null,
+      endDate: null,
+      acceptedAt: internship.submittedAt,
+    }));
   }
 }

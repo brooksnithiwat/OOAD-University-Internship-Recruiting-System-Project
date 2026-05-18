@@ -75,9 +75,9 @@ export const MyApplicationsPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/jobs')}
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                          className="mb-6 inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
             >
-              Back to Job Board
+              ← Back to Job Board
             </button>
           </div>
 

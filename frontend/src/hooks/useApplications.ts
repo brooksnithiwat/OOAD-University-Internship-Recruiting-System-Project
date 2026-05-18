@@ -1,13 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as applicationService from '../services/application.service';
+import { useAuth } from '../contexts/auth';
 
 export const MY_APPLICATIONS_KEY = ['applications', 'my'] as const;
 
 export const jobApplicantsKey = (jobId: string) => ['applications', jobId] as const;
 
 export function useMyApplications() {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: MY_APPLICATIONS_KEY,
+    queryKey: [...MY_APPLICATIONS_KEY, user?.userId],
     queryFn: () => applicationService.getMyApplications(),
     staleTime: 1000 * 30,
   });

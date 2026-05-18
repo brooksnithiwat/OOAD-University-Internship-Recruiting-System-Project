@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DepartmentRepository } from './department.repository';
 
 export interface StudentResponse {
@@ -13,15 +13,18 @@ export interface StudentResponse {
   eligibilityStatus: string;
 }
 
-export interface ApprovalResponse {
-  studentId: string;
-  previousStatus: string;
-  newStatus: string;
-  approvedAt: Date;
-}
-
-export interface ApproveStudentDto {
-  notes?: string;
+export interface InternshipReportResponse {
+  studentCode: string;
+  firstName: string;
+  lastName: string;
+  faculty: string | null;
+  department: string | null;
+  gpa: string;
+  companyName: string;
+  jobTitle: string;
+  startDate: string | null;
+  endDate: string | null;
+  acceptedAt: Date;
 }
 
 @Injectable()
@@ -53,45 +56,30 @@ export class DepartmentService {
     }));
   }
 
-  async approveStudent(
-    studentId: string,
-    userId: string,
-    approveDto: ApproveStudentDto,
-  ): Promise<ApprovalResponse> {
+  async getInternshipReport(userId: string): Promise<InternshipReportResponse[]> {
     // Get the department head's record
     const departmentHead = await this.departmentRepository.findDepartmentHeadByUserId(userId);
     if (!departmentHead || !departmentHead.department) {
       throw new NotFoundException('Department head not found');
     }
 
-    // Check if student exists and is in the same department
-    const student = await this.departmentRepository.findStudentById(studentId);
-    if (!student) {
-      throw new NotFoundException('Student not found');
-    }
-
-    // Throw ForbiddenException if student is in a different department
-    if (student.department !== departmentHead.department) {
-      throw new ForbiddenException(
-        'Cannot approve students from other departments',
-      );
-    }
-
-    const previousStatus = student.eligibilityStatus;
-
-    // Approve the student (set status to ELIGIBLE)
-    const verification = await this.departmentRepository.approveStudent(
-      studentId,
-      userId,
-      previousStatus,
-      approveDto.notes,
+    // Get internship data for students in the same department
+    const internships = await this.departmentRepository.getInternshipReports(
+      departmentHead.department,
     );
 
-    return {
-      studentId,
-      previousStatus: verification.previousStatus,
-      newStatus: verification.newStatus,
-      approvedAt: verification.verifiedAt,
-    };
+    return internships.map((internship) => ({
+      studentCode: internship.studentCode,
+      firstName: internship.firstName,
+      lastName: internship.lastName,
+      faculty: internship.faculty,
+      department: internship.department,
+      gpa: internship.gpa,
+      companyName: internship.companyName,
+      jobTitle: internship.jobTitle,
+      startDate: internship.startDate,
+      endDate: internship.endDate,
+      acceptedAt: internship.acceptedAt,
+    }));
   }
 }

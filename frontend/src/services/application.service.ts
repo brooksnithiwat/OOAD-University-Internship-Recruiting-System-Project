@@ -43,6 +43,7 @@ export type ApplicantRecord = {
     studentId: string;
     firstName: string;
     lastName: string;
+    email: string;
     gpa: number;
     faculty: string;
   };

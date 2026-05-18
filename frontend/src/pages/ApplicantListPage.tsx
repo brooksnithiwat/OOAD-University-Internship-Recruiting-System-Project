@@ -108,19 +108,18 @@ export const ApplicantListPage: React.FC = () => {
       <Header />
       <div className="min-h-screen bg-gray-50 px-4 py-8">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">Applicant list</p>
-              <h1 className="text-3xl font-bold text-gray-900">{jobPost.title}</h1>
-              <p className="text-sm text-gray-600">Applicants for {jobPost.employer.companyName}</p>
-            </div>
-            <button
+        <button
               type="button"
               onClick={() => navigate(`/jobs/${id}`)}
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+               className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
             >
-              Back to Job Detail
+              ← Back to Job Board
             </button>
+          <div className="py-4 mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>  
+              <h1 className="text-3xl font-bold text-gray-900">{jobPost.title}</h1>
+              <p className="text-sm text-gray-600">Applicants list for {jobPost.employer.companyName}</p>
+            </div>
           </div>
 
           {toasts.length > 0 && (
@@ -163,6 +162,7 @@ export const ApplicantListPage: React.FC = () => {
                 <thead className="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-600">
                   <tr>
                     <th className="px-4 py-3">Student</th>
+                    <th className="px-4 py-3">Email</th>
                     <th className="px-4 py-3">Faculty</th>
                     <th className="px-4 py-3">GPA</th>
                     <th className="px-4 py-3">Submission Date</th>
@@ -175,6 +175,7 @@ export const ApplicantListPage: React.FC = () => {
                   {sortedApplicants.map((application) => (
                     <tr key={application.applicationId} className="align-top">
                       <td className="px-4 py-4 font-medium text-gray-900">{getStudentName(application.student)}</td>
+                      <td className="px-4 py-4 text-gray-700">{application.student.email}</td>
                       <td className="px-4 py-4 text-gray-700">{application.student.faculty}</td>
                       <td className="px-4 py-4 text-gray-700">{application.student.gpa.toFixed(2)}</td>
                       <td className="px-4 py-4 text-gray-700">{formatDate(application.submittedAt)}</td>

@@ -2,22 +2,20 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/auth';
 import { Header } from '../components/Header';
-import { useJobPost, useUpdateJobPost, useCloseJobPost } from '../hooks/useJobPosts';
-import { EditJobModal } from '../components/jobs/EditJobModal';
+import { useJobPost, useCloseJobPost } from '../hooks/useJobPosts';
+import { useJobApplicants } from '../hooks/useApplications';
 import { JobSkillBadge } from '../components/jobs/JobSkillBadge';
-import { CreateJobPostRequest } from '../services/jobPost.service';
 import { ApplyModal } from '../components/applications/ApplyModal';
 
 export const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; message: string }[]>([]);
 
   const { data: jobDetail, isLoading, isError } = useJobPost(id);
-  const updateJobPost = useUpdateJobPost(id || '');
+  const { data: applicants = [] } = useJobApplicants(id);
   const closeJobPost = useCloseJobPost(id || '');
 
   const addToast = (type: 'success' | 'error', message: string) => {
@@ -62,14 +60,9 @@ export const JobDetailPage: React.FC = () => {
     );
   }
 
-  const isOwner = user?.userId === jobDetail.employer.companyName; // Assume employer check
+  const isOwner = user?.role === 'EMPLOYER';
   const isStudent = user?.role === 'STUDENT';
   const gpaIsBelow = isStudent && user?.gpa && user.gpa < jobDetail.minGpa;
-
-  const handleUpdateJobPost = async (data: Partial<CreateJobPostRequest>) => {
-    await updateJobPost.mutateAsync(data);
-    setShowEditModal(false);
-  };
 
   const handleCloseJobPost = async () => {
     if (window.confirm('Are you sure you want to close this job post?')) {
@@ -109,7 +102,7 @@ export const JobDetailPage: React.FC = () => {
           )}
           <button
             onClick={() => navigate('/jobs')}
-            className="mb-6 px-4 py-2 text-blue-600 hover:text-blue-800 underline"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 mb-6"
           >
             ← Back to Job Board
           </button>
@@ -152,6 +145,12 @@ export const JobDetailPage: React.FC = () => {
                 {new Date(jobDetail.applicationDeadline).toLocaleDateString()}
               </p>
             </div>
+            {isOwner && (
+              <div>
+                <p className="text-sm text-gray-500">Applications</p>
+                <p className="font-semibold text-gray-900">{applicants.length}</p>
+              </div>
+            )}
           </div>
 
           {gpaIsBelow && (
@@ -212,34 +211,34 @@ export const JobDetailPage: React.FC = () => {
               </button>
             )}
 
-            {isOwner && jobDetail.status === 'ACTIVE' && (
+            {isOwner && (
               <>
                 <button
-                  onClick={() => setShowEditModal(true)}
+                  onClick={() => navigate(`/job-posts/${id}/applications`)}
+                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                >
+                  View Applicants ({applicants.length})
+                </button>
+                <button
+                  onClick={() => navigate(`/jobs/${id}/edit`)}
                   className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
                 >
                   Edit Job Post
                 </button>
-                <button
-                  onClick={handleCloseJobPost}
-                  disabled={closeJobPost.isPending}
-                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
-                >
-                  {closeJobPost.isPending ? 'Closing...' : 'Close Job Post'}
-                </button>
+                {jobDetail.status === 'ACTIVE' && (
+                  <button
+                    onClick={handleCloseJobPost}
+                    disabled={closeJobPost.isPending}
+                    className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
+                  >
+                    {closeJobPost.isPending ? 'Closing...' : 'Close Job Post'}
+                  </button>
+                )}
               </>
             )}
           </div>
         </div>
       </div>
-
-      <EditJobModal
-        isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
-        jobDetail={jobDetail}
-        onSubmit={handleUpdateJobPost}
-        isLoading={updateJobPost.isPending}
-      />
 
       <ApplyModal
         isOpen={showApplyModal}

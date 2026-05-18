@@ -3,6 +3,8 @@ import { expect } from '@playwright/test';
 import {
   ADMIN,
   APP_BASE_URL,
+  COORDINATOR,
+  DEPARTMENT_HEAD,
   MOCK_JWT,
   STUDENT,
   VERIFIED_EMPLOYER,
@@ -10,7 +12,7 @@ import {
   mockAuthLoginRoute,
 } from './mock.helper';
 
-type LoginTarget = typeof STUDENT | typeof ADMIN | typeof VERIFIED_EMPLOYER;
+type LoginTarget = typeof STUDENT | typeof ADMIN | typeof VERIFIED_EMPLOYER | typeof COORDINATOR | typeof DEPARTMENT_HEAD;
 
 export const seedAuthSession = async (page: Page, user: LoginTarget, token = MOCK_JWT) => {
   await page.addInitScript(
@@ -22,6 +24,10 @@ export const seedAuthSession = async (page: Page, user: LoginTarget, token = MOC
 
       if (typeof sessionUser.gpa === 'number') {
         localStorage.setItem('USER_GPA', sessionUser.gpa.toString());
+      }
+
+      if (typeof (sessionUser as any).department === 'string') {
+        localStorage.setItem('USER_DEPARTMENT', (sessionUser as any).department);
       }
     },
     {
@@ -38,6 +44,7 @@ export const clearAuthSession = async (page: Page) => {
     localStorage.removeItem('USER_ID');
     localStorage.removeItem('USER_EMAIL');
     localStorage.removeItem('USER_GPA');
+    localStorage.removeItem('USER_DEPARTMENT');
   });
 };
 

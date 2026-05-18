@@ -78,6 +78,21 @@ export const jobPostService = {
     return data;
   },
 
+  getEmployerJobPosts: async (filters: JobPostFilters): Promise<JobPostListResponse> => {
+    const params: Record<string, any> = {};
+    
+    if (filters.location) params.location = filters.location;
+    if (filters.minGpa !== undefined) params.minGpa = filters.minGpa;
+    if (filters.search) params.search = filters.search;
+    if (filters.page && filters.page !== 1) params.page = filters.page;
+    if (filters.limit && filters.limit !== 10) params.limit = filters.limit;
+    
+    const { data } = await axiosInstance.get<JobPostListResponse>('/job-posts/my', {
+      params: Object.keys(params).length > 0 ? params : undefined,
+    });
+    return data;
+  },
+
   getJobPostById: async (id: string): Promise<JobPostDetail> => {
     const { data } = await axiosInstance.get<JobPostDetail>(`/job-posts/${id}`);
     return data;

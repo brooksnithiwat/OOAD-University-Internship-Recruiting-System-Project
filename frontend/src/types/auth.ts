@@ -70,6 +70,7 @@ export type AuthResponse = {
   userId: string;
   email?: string;
   gpa?: number;
+  department?: string;
 };
 
 export type RegisterResponse = {

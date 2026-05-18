@@ -5,10 +5,14 @@ import { RegisterPage } from '@/pages/RegisterPage';
 import { JobBoardPage } from '@/pages/JobBoardPage';
 import { JobDetailPage } from '@/pages/JobDetailPage';
 import { CreateJobPage } from '@/pages/CreateJobPage';
+import { EditJobPostPage } from '@/pages/EditJobPostPage';
 import ResumePage from './pages/ResumePage';
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
 import { UnverifiedEmployersPage } from '@/pages/admin/UnverifiedEmployersPage';
 import { UsersPage } from '@/pages/admin/UsersPage';
+import { CoordinatorDashboardPage } from '@/pages/coordinator/CoordinatorDashboardPage';
+import { CoordinatorStudentListPage } from '@/pages/coordinator/CoordinatorStudentListPage';
+import { DepartmentDashboardPage } from './pages/department/DepartmentDashboardPage';
 import { MyApplicationsPage } from './pages/MyApplicationsPage';
 import { ApplicantListPage } from './pages/ApplicantListPage';
 
@@ -64,6 +68,10 @@ export const App = () => {
           isAuthenticated ? (
             user?.role === 'SYSTEM_ADMINISTRATOR' ? (
               <Navigate to="/admin" replace />
+            ) : user?.role === 'UNIVERSITY_COORDINATOR' ? (
+              <Navigate to="/coordinator" replace />
+            ) : user?.role === 'DEPARTMENT_HEAD' ? (
+              <Navigate to="/dashboard" replace />
             ) : (
               <Navigate to="/jobs" replace />
             )
@@ -85,6 +93,14 @@ export const App = () => {
         element={
           <PrivateRoute>
             <CreateJobPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/jobs/:id/edit"
+        element={
+          <PrivateRoute>
+            <EditJobPostPage />
           </PrivateRoute>
         }
       />
@@ -121,6 +137,15 @@ export const App = () => {
         }
       />
       <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute>
+            <DepartmentDashboardPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
         path="/admin"
         element={
           <PrivateRoute>
@@ -142,6 +167,22 @@ export const App = () => {
         element={
           <PrivateRoute>
             <UsersPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/coordinator"
+        element={
+          <PrivateRoute>
+            <CoordinatorDashboardPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/coordinator/students"
+        element={
+          <PrivateRoute>
+            <CoordinatorStudentListPage />
           </PrivateRoute>
         }
       />

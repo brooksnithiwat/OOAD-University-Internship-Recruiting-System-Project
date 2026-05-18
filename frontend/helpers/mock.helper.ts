@@ -29,6 +29,21 @@ export const VERIFIED_EMPLOYER = {
   userId: 'employer-1',
 };
 
+export const COORDINATOR = {
+  email: 'coordinator@test.com',
+  password: 'password123',
+  role: 'UNIVERSITY_COORDINATOR' as const,
+  userId: 'coordinator-1',
+};
+
+export const DEPARTMENT_HEAD = {
+  email: 'departmenthead@test.com',
+  password: 'password123',
+  role: 'DEPARTMENT_HEAD' as const,
+  userId: 'depthead-1',
+  department: 'Computer Science',
+};
+
 export const APP_BASE_URL = 'http://localhost:5173';
 export const MOCK_JWT = 'mock-jwt-token';
 
@@ -38,6 +53,7 @@ type MockSessionUser = {
   role: AuthResponse['role'];
   userId: string;
   gpa?: number;
+  department?: string;
 };
 
 type JobFixture = JobPostDetail & {
@@ -63,6 +79,7 @@ export const mockSessionUser = (user: MockSessionUser, token: string = MOCK_JWT)
   userId: user.userId,
   email: user.email,
   gpa: user.gpa,
+  department: user.department,
 });
 
 export const successResponse = <T,>(body: T, status = 200) => ({
