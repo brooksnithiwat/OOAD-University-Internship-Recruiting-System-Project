@@ -10,6 +10,7 @@ import ResumePage from './pages/ResumePage';
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
 import { UnverifiedEmployersPage } from '@/pages/admin/UnverifiedEmployersPage';
 import { UsersPage } from '@/pages/admin/UsersPage';
+import { CreateUserPage } from '@/pages/admin/CreateUserPage';
 import { CoordinatorDashboardPage } from '@/pages/coordinator/CoordinatorDashboardPage';
 import { CoordinatorStudentListPage } from '@/pages/coordinator/CoordinatorStudentListPage';
 import { DepartmentDashboardPage } from './pages/department/DepartmentDashboardPage';
@@ -167,6 +168,14 @@ export const App = () => {
         element={
           <PrivateRoute>
             <UsersPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/admin/users/create"
+        element={
+          <PrivateRoute>
+            <CreateUserPage />
           </PrivateRoute>
         }
       />

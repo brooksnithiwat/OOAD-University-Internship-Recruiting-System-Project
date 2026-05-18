@@ -79,10 +79,10 @@ export const AdminDashboardPage: React.FC = () => {
             </Link>
 
             <Link
-              to="/admin/users"
+              to="/admin/users/create"
               className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
             >
-              User Management (Phase 5)
+              Add User
             </Link>
           </div>
         </div>

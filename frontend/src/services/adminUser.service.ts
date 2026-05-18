@@ -21,7 +21,7 @@ export interface CreateStaffPayload {
   password: string;
   firstName: string;
   lastName: string;
-  departmentId: string;
+  department: string;
   role: 'UNIVERSITY_COORDINATOR' | 'DEPARTMENT_HEAD';
 }
 

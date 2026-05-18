@@ -24,7 +24,7 @@ export const CreateStaffModal: React.FC<CreateStaffModalProps> = ({
     password: '',
     firstName: '',
     lastName: '',
-    departmentId: '',
+    department: '',
     role: 'UNIVERSITY_COORDINATOR' as const,
   });
 
@@ -66,8 +66,8 @@ export const CreateStaffModal: React.FC<CreateStaffModalProps> = ({
       newErrors.lastName = 'Last name is required';
     }
 
-    if (!formData.departmentId) {
-      newErrors.departmentId = 'Department is required';
+    if (!formData.department) {
+      newErrors.department = 'Department is required';
     }
 
     setErrors(newErrors);
@@ -82,14 +82,22 @@ export const CreateStaffModal: React.FC<CreateStaffModalProps> = ({
     }
 
     try {
-      await createMutation.mutateAsync(formData as CreateStaffPayload);
+      // map formData to CreateStaffPayload (department is expected as string)
+      await createMutation.mutateAsync({
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        department: formData.department,
+        role: formData.role,
+      } as CreateStaffPayload);
       // Reset form
       setFormData({
         email: '',
         password: '',
         firstName: '',
         lastName: '',
-        departmentId: '',
+        department: '',
         role: 'UNIVERSITY_COORDINATOR',
       });
       setErrors({});
@@ -182,21 +190,21 @@ export const CreateStaffModal: React.FC<CreateStaffModalProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
             <select
-              name="departmentId"
-              value={formData.departmentId}
+              name="department"
+              value={formData.department}
               onChange={handleChange}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.departmentId ? 'border-red-500' : 'border-gray-300'
+                errors.department ? 'border-red-500' : 'border-gray-300'
               }`}
             >
               <option value="">Select a department</option>
               {departments.map((dept) => (
-                <option key={dept.id} value={dept.id}>
+                <option key={dept.id} value={dept.name}>
                   {dept.name}
                 </option>
               ))}
             </select>
-            {errors.departmentId && <p className="text-red-500 text-xs mt-1">{errors.departmentId}</p>}
+            {errors.department && <p className="text-red-500 text-xs mt-1">{errors.department}</p>}
           </div>
 
           <div>
