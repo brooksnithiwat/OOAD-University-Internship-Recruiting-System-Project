@@ -182,8 +182,8 @@ export class ApplicationsService {
         studentId: app.student.studentId,
         firstName: app.student.firstName,
         lastName: app.student.lastName,
-        email: app.student.email,
-        gpa: app.student.gpa.toNumber ? app.student.gpa.toNumber() : parseFloat(app.student.gpa.toString()),
+        email: app.student.user ? app.student.user.email : undefined,
+        gpa: app.student.gpa && (app.student.gpa.toNumber ? app.student.gpa.toNumber() : parseFloat(app.student.gpa.toString())),
         faculty: app.student.faculty,
       },
       resume: app.resume
