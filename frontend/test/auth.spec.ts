@@ -132,8 +132,8 @@ test.describe('Auth flows', () => {
   });
 
   test('logout clears session and returns to login', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockJobPostRoutes(page, defaultJobFixtures);
+    await seedAuthSession(page, STUDENT);
     await page.goto(`${APP_BASE_URL}/jobs`);
     await page.getByRole('button', { name: 'Logout' }).click();
 
@@ -142,12 +142,12 @@ test.describe('Auth flows', () => {
   });
 
   test('student cannot access admin dashboard', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockAdminDashboardRoutes(page, {
       employers: defaultEmployerFixtures,
       totalUsers: 18,
       jobs: defaultJobFixtures,
     });
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/admin`);
 

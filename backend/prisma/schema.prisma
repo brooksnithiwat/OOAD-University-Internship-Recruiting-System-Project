@@ -39,6 +39,7 @@ model User {
 
   student   Student?
   employer  Employer?
+  auditLogs AuditLog[]
 
   @@map("users")
 }
@@ -57,8 +58,9 @@ model Student {
   createdAt         DateTime          @default(now()) @map("created_at")
   updatedAt         DateTime          @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  resumes Resume[]
+  user         User          @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  resumes      Resume[]
+  applications Application[]
 
   @@map("students")
 }
@@ -84,6 +86,15 @@ enum JobPostStatus {
   DRAFT
 }
 
+enum ApplicationStatus {
+  PENDING
+  INTERVIEW_REQUEST
+  OFFER_SENT
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
 model JobPost {
   jobId               String        @id @default(uuid()) @map("job_id")
   employerId          String        @map("employer_id")
@@ -97,8 +108,9 @@ model JobPost {
   createdAt           DateTime      @default(now()) @map("created_at")
   updatedAt           DateTime      @updatedAt @map("updated_at")
 
-  employer   Employer       @relation(fields: [employerId], references: [employerId], onDelete: Cascade)
-  skills     JobPostSkill[]
+  employer     Employer       @relation(fields: [employerId], references: [employerId], onDelete: Cascade)
+  skills       JobPostSkill[]
+  applications Application[]
 
   @@map("job_posts")
 }
@@ -123,7 +135,41 @@ model Resume {
   virusScanStatus VirusScanStatus @default(PENDING) @map("virus_scan_status")
   uploadedAt      DateTime        @default(now()) @map("uploaded_at")
 
-  student Student @relation(fields: [studentId], references: [studentId], onDelete: Cascade)
+  student      Student        @relation(fields: [studentId], references: [studentId], onDelete: Cascade)
+  applications Application[]
 
   @@map("resumes")
+}
+
+model Application {
+  applicationId String            @id @default(uuid()) @map("application_id")
+  studentId     String            @map("student_id")
+  jobId         String            @map("job_id")
+  resumeId      String?           @map("resume_id")
+  status        ApplicationStatus @default(PENDING)
+  submittedAt   DateTime          @default(now()) @map("submitted_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  student   Student    @relation(fields: [studentId], references: [studentId], onDelete: Cascade)
+  jobPost   JobPost    @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
+  resume    Resume?    @relation(fields: [resumeId], references: [resumeId])
+  auditLogs AuditLog[]
+
+  @@unique([studentId, jobId])
+  @@map("applications")
+}
+
+model AuditLog {
+  logId         String   @id @default(uuid()) @map("log_id")
+  applicationId String   @map("application_id")
+  changedBy     String   @map("changed_by")
+  oldStatus     String?  @map("old_status")
+  newStatus     String   @map("new_status")
+  note          String?
+  changedAt     DateTime @default(now()) @map("changed_at")
+
+  application Application @relation(fields: [applicationId], references: [applicationId], onDelete: Cascade)
+  user        User        @relation(fields: [changedBy], references: [userId])
+
+  @@map("audit_logs")
 }
