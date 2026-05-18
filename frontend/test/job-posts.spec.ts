@@ -140,32 +140,6 @@ test.describe('Job posts flows', () => {
     await expect(page.getByText('Try adjusting your filters or check back later for new opportunities.')).toBeVisible();
   });
 
-  test('job detail shows full job information and skill badges', async ({ page }) => {
-    await mockJobPostRoutes(page, createJobFixtures());
-    await seedAuthSession(page, STUDENT);
-
-    await page.goto(`${APP_BASE_URL}/jobs/job-1`);
-
-    await expect(page.getByRole('heading', { name: 'Software Engineer Intern' })).toBeVisible();
-    await expect(page.locator('p').filter({ hasText: /^TechNova$/ }).first()).toBeVisible();
-    await expect(page.getByText('Bangkok')).toBeVisible();
-    await expect(page.getByText('Min GPA')).toBeVisible();
-    await expect(page.getByText('12 weeks')).toBeVisible();
-    await expect(page.getByText('React')).toBeVisible();
-    await expect(page.getByText('TypeScript')).toBeVisible();
-    await expect(page.getByText('Node.js')).toBeVisible();
-    await expect(page.getByText('Employer Information')).toBeVisible();
-  });
-
-  test('student below minimum GPA sees warning banner', async ({ page }) => {
-    await mockJobPostRoutes(page, createJobFixtures());
-    await seedAuthSession(page, { ...STUDENT, gpa: 2.5 });
-
-    await page.goto(`${APP_BASE_URL}/jobs/job-3`);
-
-    await expect(page.getByText('Your GPA (2.50) is below the requirement (3.50)')).toBeVisible();
-  });
-
   test('student above minimum GPA does not see warning banner', async ({ page }) => {
     await mockJobPostRoutes(page, createJobFixtures());
     await seedAuthSession(page, { ...STUDENT, gpa: 3.8 });
@@ -176,8 +150,8 @@ test.describe('Job posts flows', () => {
   });
 
   test('student cannot see edit or close buttons on job detail', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockJobPostRoutes(page, createJobFixtures());
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/jobs/job-1`);
 

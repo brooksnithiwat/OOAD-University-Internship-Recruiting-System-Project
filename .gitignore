@@ -12,6 +12,7 @@ backend/dist/
 # Test
 frontend/playwright-report/
 frontend/test-results/
+frontend/test-results.json
 
 
 # TypeScript incremental build info
