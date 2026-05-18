@@ -11,8 +11,8 @@ import { seedAuthSession } from '../helpers/auth.helper';
 
 test.describe('Job posts flows', () => {
   test('job board renders cards from mocked API', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockJobPostRoutes(page, createJobFixtures());
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/jobs`);
 
@@ -23,8 +23,8 @@ test.describe('Job posts flows', () => {
   });
 
   test('employer can see and use the create job post button', async ({ page }) => {
-    await seedAuthSession(page, VERIFIED_EMPLOYER);
     await mockJobPostRoutes(page, createJobFixtures());
+    await seedAuthSession(page, VERIFIED_EMPLOYER);
 
     await page.goto(`${APP_BASE_URL}/jobs`);
 
@@ -68,8 +68,8 @@ test.describe('Job posts flows', () => {
   });
 
   test('employer does not see the my GPA filter', async ({ page }) => {
-    await seedAuthSession(page, VERIFIED_EMPLOYER);
     await mockJobPostRoutes(page, createJobFixtures());
+    await seedAuthSession(page, VERIFIED_EMPLOYER);
 
     await page.goto(`${APP_BASE_URL}/jobs`);
 
@@ -77,8 +77,8 @@ test.describe('Job posts flows', () => {
   });
 
   test('search filters jobs by keyword', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockJobPostRoutes(page, createJobFixtures());
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/jobs`);
     await page.getByLabel('Search').fill('Data');
@@ -89,8 +89,8 @@ test.describe('Job posts flows', () => {
   });
 
   test('location filter returns matching jobs only', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockJobPostRoutes(page, createJobFixtures());
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/jobs`);
     await page.getByLabel('Location').fill('Bangkok');
@@ -101,8 +101,8 @@ test.describe('Job posts flows', () => {
   });
 
   test('my GPA filter hides jobs above student GPA', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockJobPostRoutes(page, createJobFixtures());
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/jobs`);
     await page.getByLabel('My GPA (3.00)').check();
@@ -113,8 +113,8 @@ test.describe('Job posts flows', () => {
   });
 
   test('clearing filters restores the full job list', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockJobPostRoutes(page, createJobFixtures());
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/jobs`);
     await page.getByLabel('Search').fill('Data');
@@ -131,8 +131,8 @@ test.describe('Job posts flows', () => {
   });
 
   test('empty response shows empty state', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockJobPostRoutes(page, []);
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/jobs`);
 
@@ -141,8 +141,8 @@ test.describe('Job posts flows', () => {
   });
 
   test('job detail shows full job information and skill badges', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockJobPostRoutes(page, createJobFixtures());
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/jobs/job-1`);
 
@@ -158,8 +158,8 @@ test.describe('Job posts flows', () => {
   });
 
   test('student below minimum GPA sees warning banner', async ({ page }) => {
-    await seedAuthSession(page, { ...STUDENT, gpa: 2.5 });
     await mockJobPostRoutes(page, createJobFixtures());
+    await seedAuthSession(page, { ...STUDENT, gpa: 2.5 });
 
     await page.goto(`${APP_BASE_URL}/jobs/job-3`);
 
@@ -167,8 +167,8 @@ test.describe('Job posts flows', () => {
   });
 
   test('student above minimum GPA does not see warning banner', async ({ page }) => {
-    await seedAuthSession(page, { ...STUDENT, gpa: 3.8 });
     await mockJobPostRoutes(page, createJobFixtures());
+    await seedAuthSession(page, { ...STUDENT, gpa: 3.8 });
 
     await page.goto(`${APP_BASE_URL}/jobs/job-3`);
 

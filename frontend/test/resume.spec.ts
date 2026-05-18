@@ -81,8 +81,8 @@ const mockResumeRoutes = async (page: any, initial: ResumeItem[]) => {
 
 test.describe('Resume flows', () => {
   test('student can open resumes page and see uploaded files', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockResumeRoutes(page, createResumeFixtures());
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/profile/resumes`);
 
@@ -94,8 +94,8 @@ test.describe('Resume flows', () => {
   });
 
   test('empty state is shown when no resumes exist', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockResumeRoutes(page, []);
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/profile/resumes`);
 
@@ -103,8 +103,8 @@ test.describe('Resume flows', () => {
   });
 
   test('student can delete own resume from list', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockResumeRoutes(page, createResumeFixtures());
+    await seedAuthSession(page, STUDENT);
 
     page.on('dialog', async (dialog) => {
       await dialog.accept();

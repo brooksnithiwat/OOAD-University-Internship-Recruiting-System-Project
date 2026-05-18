@@ -23,12 +23,12 @@ test.describe('Admin flows', () => {
   });
 
   test('admin dashboard shows unverified employer count and review link', async ({ page }) => {
-    await seedAuthSession(page, ADMIN);
     await mockAdminDashboardRoutes(page, {
       employers: defaultEmployerFixtures,
       totalUsers: 18,
       jobs: defaultJobFixtures,
     });
+    await seedAuthSession(page, ADMIN);
      
 
     await page.goto(`${APP_BASE_URL}/admin`);
@@ -38,8 +38,8 @@ test.describe('Admin flows', () => {
   });
 
   test('unverified employers page shows empty state when no employers remain', async ({ page }) => {
-    await seedAuthSession(page, ADMIN);
     await mockEmployerReviewRoutes(page, []);
+    await seedAuthSession(page, ADMIN);
 
     await page.goto(`${APP_BASE_URL}/admin/employers/unverified`);
 
@@ -48,12 +48,12 @@ test.describe('Admin flows', () => {
   });
 
   test('student is redirected away from admin pages', async ({ page }) => {
-    await seedAuthSession(page, STUDENT);
     await mockAdminDashboardRoutes(page, {
       employers: defaultEmployerFixtures,
       totalUsers: 18,
       jobs: defaultJobFixtures,
     });
+    await seedAuthSession(page, STUDENT);
 
     await page.goto(`${APP_BASE_URL}/admin`);
 
