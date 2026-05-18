@@ -7,6 +7,8 @@ import { StudentsModule } from './students/students.module';
 import { EmployersModule } from './employers/employers.module';
 import { JobPostsModule } from './job-posts/job-posts.module';
 import { AdminModule } from './admin/admin.module';
+import { CoordinatorModule } from './coordinator/coordinator.module';
+import { DepartmentModule } from './department/department.module';
 import { ResumesModule } from './resumes/resumes.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -23,6 +25,8 @@ import { NotificationsModule } from './notifications/notifications.module';
     EmployersModule,
     JobPostsModule,
     AdminModule,
+    CoordinatorModule,
+    DepartmentModule,
     ResumesModule,
     ApplicationsModule,
     NotificationsModule,

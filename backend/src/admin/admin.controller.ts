@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   HttpCode,
   HttpStatus,
   Param,
@@ -8,13 +9,21 @@ import {
   Patch,
   Query,
   UseGuards,
+  Body,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { Roles, CurrentUser } from '../common/decorators';
 import { Role } from '../common/enums/role.enum';
 import { AdminService } from './admin.service';
 import { SearchEmployersDto } from './dto/search-employers.dto';
+import { CreateStaffUserDto } from './dto/create-staff-user.dto';
+
+interface UserPayload {
+  userId: string;
+  email: string;
+  role: string;
+}
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard)
@@ -81,5 +90,42 @@ export class AdminController {
     isVerified: boolean;
   }> {
     return this.adminService.verifyEmployer(employerId);
+  }
+
+  @Post('users')
+  @UseGuards(RolesGuard)
+  @Roles(Role.SYSTEM_ADMINISTRATOR)
+  @HttpCode(HttpStatus.CREATED)
+  async createStaffUser(
+    @Body() createStaffUserDto: CreateStaffUserDto,
+  ): Promise<{ userId: string; email: string; role: string }> {
+    return this.adminService.createStaffUser(createStaffUserDto);
+  }
+
+  @Get('users')
+  @UseGuards(RolesGuard)
+  @Roles(Role.SYSTEM_ADMINISTRATOR)
+  @HttpCode(HttpStatus.OK)
+  async getAllUsers(): Promise<
+    Array<{
+      userId: string;
+      email: string;
+      role: string;
+      isActive: boolean;
+      createdAt: Date;
+    }>
+  > {
+    return this.adminService.getAllUsers();
+  }
+
+  @Patch('users/:id/deactivate')
+  @UseGuards(RolesGuard)
+  @Roles(Role.SYSTEM_ADMINISTRATOR)
+  @HttpCode(HttpStatus.OK)
+  async deactivateUser(
+    @Param('id', new ParseUUIDPipe()) userId: string,
+    @CurrentUser() user: UserPayload,
+  ): Promise<{ message: string }> {
+    return this.adminService.deactivateUser(userId, user.userId);
   }
 }

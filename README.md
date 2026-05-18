@@ -131,6 +131,7 @@ Backend:
 ```bash
 npm run build
 npm run test
+npm run prisma:seed  # Seed the database with test data
 ```
 
 Frontend:
@@ -139,6 +140,57 @@ Frontend:
 npm run build
 npm run preview
 ```
+
+## Seed Data & Test Credentials
+
+The database comes with pre-seeded test users for development and testing. Run the seed command to populate the database:
+
+```bash
+cd backend
+npm run prisma:seed
+```
+
+### Available Test Accounts
+
+| Role | Email | Password |
+|------|-------|----------|
+| System Administrator | `admin@email.com` | `Admin_1234` |
+| Employer | `employee@email.com` | `Employee_1234` |
+| Student | `student@email.com` | `Student_1234` |
+
+### Seeded Data Details
+
+**Admin User:**
+- Email: `admin@email.com`
+- Password: `Admin_1234`
+- Role: `SYSTEM_ADMINISTRATOR`
+- Access: Full system access, user management dashboard
+
+**Employer User:**
+- Email: `employee@email.com`
+- Password: `Employee_1234`
+- Role: `EMPLOYER`
+- Company: Tech Company
+- Status: Verified employer account
+- Access: Can post jobs and view applications
+
+**Student User:**
+- Email: `student@email.com`
+- Password: `Student_1234`
+- Role: `STUDENT`
+- Student Code: `STU001`
+- Faculty: Engineering
+- Department: Computer Science
+- Academic Year: 2024
+- GPA: 3.5
+- Access: Can apply to jobs and manage profile
+
+### Notes
+
+- All emails are stored in **lowercase** in the database
+- Passwords are hashed using bcrypt with salt rounds of 10
+- Test accounts are idempotent (running seed multiple times is safe)
+- Modify `backend/prisma/seed.ts` to customize seed data
 
 ## Resume Upload Storage
 

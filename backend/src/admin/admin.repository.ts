@@ -176,4 +176,127 @@ export class AdminRepository {
       },
     };
   }
+
+  async createStaffUser(
+    email: string,
+    passwordHash: string,
+    firstName: string,
+    lastName: string,
+    department: string | undefined,
+    role: string,
+  ): Promise<{ userId: string; email: string; role: string }> {
+    if (role === 'UNIVERSITY_COORDINATOR') {
+      return await this.prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: {
+            email,
+            passwordHash,
+            role: role as any,
+            isActive: true,
+          },
+        });
+
+        await tx.universityCoordinator.create({
+          data: {
+            userId: user.userId,
+            firstName,
+            lastName,
+            department: department || null,
+          },
+        });
+
+        return {
+          userId: user.userId,
+          email: user.email,
+          role: user.role,
+        };
+      });
+    } else if (role === 'DEPARTMENT_HEAD') {
+      return await this.prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: {
+            email,
+            passwordHash,
+            role: role as any,
+            isActive: true,
+          },
+        });
+
+        await tx.departmentHead.create({
+          data: {
+            userId: user.userId,
+            firstName,
+            lastName,
+            department: department || '',
+          },
+        });
+
+        return {
+          userId: user.userId,
+          email: user.email,
+          role: user.role,
+        };
+      });
+    }
+
+    throw new Error(`Invalid role: ${role}`);
+  }
+
+  async findAllUsers(): Promise<
+    Array<{
+      userId: string;
+      email: string;
+      role: string;
+      isActive: boolean;
+      createdAt: Date;
+    }>
+  > {
+    return this.prisma.user.findMany({
+      select: {
+        userId: true,
+        email: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async findUserByEmail(email: string): Promise<{
+    userId: string;
+  } | null> {
+    return this.prisma.user.findUnique({
+      where: { email },
+      select: { userId: true },
+    });
+  }
+
+  async findUserById(userId: string): Promise<{
+    userId: string;
+    email: string;
+    role: string;
+    isActive: boolean;
+  } | null> {
+    return this.prisma.user.findUnique({
+      where: { userId },
+      select: {
+        userId: true,
+        email: true,
+        role: true,
+        isActive: true,
+      },
+    });
+  }
+
+  async deactivateUser(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { userId },
+      data: {
+        isActive: false,
+      },
+    });
+  }
 }

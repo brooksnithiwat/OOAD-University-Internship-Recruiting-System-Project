@@ -14,8 +14,8 @@ describe('ApplicationsService', () => {
   const mockStudent = {
     studentId: 'student-1',
     userId: 'user-1',
-    firstName: 'Supachok',
-    lastName: 'Deetaweesukh',
+    firstName: 'Supakrit',
+    lastName: 'Jirachai',
     gpa: 3.45,
     faculty: 'Engineering',
     eligibilityStatus: 'ELIGIBLE',
@@ -126,7 +126,7 @@ describe('ApplicationsService', () => {
       expect(notificationsService.sendNewApplicationEmail).toHaveBeenCalledWith(
         'employer@acme.com',
         'Software Engineer Intern',
-        'Supachok Deetaweesukh',
+        'Supakrit Jirachai',
       );
     });
 
@@ -179,7 +179,7 @@ describe('ApplicationsService', () => {
       expect(notificationsService.sendNewApplicationEmail).toHaveBeenCalledWith(
         'employer@acme.com',
         'Software Engineer Intern',
-        'Supachok Deetaweesukh',
+        'Supakrit Jirachai',
       );
     });
   });

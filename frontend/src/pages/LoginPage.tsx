@@ -29,7 +29,10 @@ export const LoginPage = () => {
 
     setIsLoading(true);
     try {
-      const response = await login(formValues);
+      const response = await login({
+        email: formValues.email.toLowerCase(),
+        password: formValues.password,
+      });
 
       authContext.login(
         {

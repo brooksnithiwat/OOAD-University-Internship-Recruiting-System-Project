@@ -37,9 +37,12 @@ model User {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
-  student   Student?
-  employer  Employer?
-  auditLogs AuditLog[]
+  student                Student?
+  employer               Employer?
+  universityCoordinator  UniversityCoordinator?
+  departmentHead         DepartmentHead?
+  auditLogs              AuditLog[]
+  verificationRecords    EligibilityVerification[]
 
   @@map("users")
 }
@@ -58,9 +61,10 @@ model Student {
   createdAt         DateTime          @default(now()) @map("created_at")
   updatedAt         DateTime          @updatedAt @map("updated_at")
 
-  user         User          @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  resumes      Resume[]
-  applications Application[]
+  user                     User                       @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  resumes                  Resume[]
+  applications             Application[]
+  eligibilityVerifications EligibilityVerification[]
 
   @@map("students")
 }
@@ -76,9 +80,52 @@ model Employer {
   isVerified   Boolean  @default(false) @map("is_verified")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
-  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  jobPosts JobPost[]
+  user         User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  jobPosts     JobPost[]
   @@map("employers")
+}
+
+model UniversityCoordinator {
+  coordinatorId String   @id @default(uuid()) @map("coordinator_id")
+  userId        String   @unique @map("user_id")
+  firstName     String   @map("first_name")
+  lastName      String   @map("last_name")
+  department    String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user                     User                       @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("university_coordinators")
+}
+
+model DepartmentHead {
+  headId     String   @id @default(uuid()) @map("head_id")
+  userId     String   @unique @map("user_id")
+  firstName  String   @map("first_name")
+  lastName   String   @map("last_name")
+  department String
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("department_heads")
+}
+
+model EligibilityVerification {
+  verificationId String   @id @default(uuid()) @map("verification_id")
+  studentId      String   @map("student_id")
+  verifiedBy     String   @map("verified_by")
+  previousStatus String   @map("previous_status")
+  newStatus      String   @map("new_status")
+  notes          String?
+  verifiedAt     DateTime @default(now()) @map("verified_at")
+
+  student_relation Student @relation(fields: [studentId], references: [studentId], onDelete: Cascade)
+  verifier User @relation(fields: [verifiedBy], references: [userId], onDelete: Cascade)
+
+  @@map("eligibility_verifications")
 }
 enum JobPostStatus {
   ACTIVE
