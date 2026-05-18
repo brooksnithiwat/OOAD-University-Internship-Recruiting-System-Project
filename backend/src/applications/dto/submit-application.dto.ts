@@ -2,7 +2,7 @@ import { IsUUID, IsOptional } from 'class-validator';
 
 export class SubmitApplicationDto {
   @IsUUID()
-  jobId: string;
+  jobId!: string;
 
   @IsOptional()
   @IsUUID()

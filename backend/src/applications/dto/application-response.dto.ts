@@ -1,9 +1,9 @@
 export class ApplicationResponseDto {
-  applicationId: string;
+  applicationId!: string;
   jobId?: string;
   studentId?: string;
-  status: string;
-  submittedAt: Date;
+  status!: string;
+  submittedAt!: Date;
   updatedAt?: Date;
 
   // For GET /applications/my response
@@ -35,19 +35,19 @@ export class ApplicationResponseDto {
 }
 
 export class SubmitApplicationResponseDto {
-  applicationId: string;
-  jobId: string;
-  status: string;
-  submittedAt: Date;
+  applicationId!: string;
+  jobId!: string;
+  status!: string;
+  submittedAt!: Date;
 }
 
 export class WithdrawApplicationResponseDto {
-  message: string;
+  message!: string;
 }
 
 export class UpdateStatusResponseDto {
-  applicationId: string;
-  oldStatus: string;
-  newStatus: string;
-  updatedAt: Date;
+  applicationId!: string;
+  oldStatus!: string;
+  newStatus!: string;
+  updatedAt!: Date;
 }
