@@ -140,6 +140,16 @@ export class ApplicationsRepository {
     });
   }
 
+  async findResumeById(resumeId: string) {
+    return this.prisma.resume.findUnique({
+      where: { resumeId },
+      select: {
+        resumeId: true,
+        studentId: true,
+      },
+    });
+  }
+
   async findStudentByUserId(userId: string) {
     return this.prisma.student.findUnique({
       where: { userId },

@@ -64,26 +64,51 @@ export class ApplicationsService {
       throw new ConflictException('Student has already applied to this job');
     }
 
-    // Create application and send notification in transaction
-    const application = await this.applicationsRepository.createApplicationWithNotification(
-      student.studentId,
-      jobId,
-      resumeId,
-      async (app) => {
-        await this.notificationsService.sendNewApplicationEmail(
-          jobPost.employer.user.email,
-          jobPost.title,
-          `${student.firstName} ${student.lastName}`,
-        );
-      },
-    );
+    if (resumeId) {
+      const resume = await this.applicationsRepository.findResumeById(resumeId);
+      if (!resume) {
+        throw new NotFoundException('Resume not found');
+      }
 
-    return {
-      applicationId: application.applicationId,
-      jobId: application.jobId,
-      status: application.status,
-      submittedAt: application.submittedAt,
-    };
+      if (resume.studentId !== student.studentId) {
+        throw new ForbiddenException('You do not have access to this resume');
+      }
+    }
+
+    // Create application and send notification in transaction
+    try {
+      const application = await this.applicationsRepository.createApplicationWithNotification(
+        student.studentId,
+        jobId,
+        resumeId,
+        async () => {
+          await this.notificationsService.sendNewApplicationEmail(
+            jobPost.employer.user.email,
+            jobPost.title,
+            `${student.firstName} ${student.lastName}`,
+          );
+        },
+      );
+
+      return {
+        applicationId: application.applicationId,
+        jobId: application.jobId,
+        status: application.status,
+        submittedAt: application.submittedAt,
+      };
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+
+      if (code === 'P2003') {
+        throw new BadRequestException('Selected resume is invalid');
+      }
+
+      if (code === 'P2002') {
+        throw new ConflictException('Student has already applied to this job');
+      }
+
+      throw error;
+    }
   }
 
   async getMyApplications(userId: string) {
