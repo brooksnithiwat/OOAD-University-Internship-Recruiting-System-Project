@@ -75,19 +75,19 @@ export class ApplicationsService {
       }
     }
 
-    // Create application and send notification in transaction
+    // Create application first so the database commit is not blocked by SMTP/network latency
     try {
       const application = await this.applicationsRepository.createApplicationWithNotification(
         student.studentId,
         jobId,
         resumeId,
-        async () => {
-          await this.notificationsService.sendNewApplicationEmail(
-            jobPost.employer.user.email,
-            jobPost.title,
-            `${student.firstName} ${student.lastName}`,
-          );
-        },
+        async () => undefined,
+      );
+
+      void this.notificationsService.sendNewApplicationEmail(
+        jobPost.employer.user.email,
+        jobPost.title,
+        `${student.firstName} ${student.lastName}`,
       );
 
       return {

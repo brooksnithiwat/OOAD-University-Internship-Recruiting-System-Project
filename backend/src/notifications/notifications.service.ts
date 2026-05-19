@@ -18,11 +18,15 @@ export class NotificationsService {
         host: smtpHost,
         port: parseInt(smtpPort, 10),
         secure: parseInt(smtpPort, 10) === 465,
+        family: 4,
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
         auth: {
           user: smtpUser,
           pass: smtpPass,
         },
-      });
+      } as any);
     }
   }
 
