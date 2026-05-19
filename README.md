@@ -18,6 +18,11 @@ The project uses separate environment files for the backend and frontend:
 	- `PORT=3000`
 	- `JWT_SECRET=your_jwt_secret_key`
 	- `FRONTEND_URL=http://localhost:5173`
+	- `SMTP_HOST=smtp.gmail.com`
+	- `SMTP_PORT=587`
+	- `SMTP_USER=your-email@gmail.com`
+	- `SMTP_PASS=your-gmail-app-password`
+	- `SMTP_FROM=your-email@gmail.com`
 - `frontend/.env.example`
 	- `VITE_API_URL="http://localhost:3000"`
 
@@ -80,7 +85,14 @@ DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
 PORT=3000
 JWT_SECRET=your_jwt_secret_key
 FRONTEND_URL=http://localhost:5173
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-gmail-app-password
+SMTP_FROM=your-email@gmail.com
 ```
+
+For production email delivery with Gmail, use a Google App Password and keep the `SMTP_FROM` address aligned with the Gmail account or a verified alias.
 
 ### 3. Prepare Prisma
 

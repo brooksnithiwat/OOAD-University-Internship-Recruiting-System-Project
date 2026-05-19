@@ -104,9 +104,15 @@ The `.env` file has been updated with:
 DATABASE_URL="postgresql://postgres:brooks7121@localhost:5432/intern_db"
 PORT=3000
 JWT_SECRET="your-secret-key-change-in-production-to-a-strong-random-string"
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-gmail-app-password
+SMTP_FROM=your-email@gmail.com
 ```
 
 ⚠️ **IMPORTANT**: For production, change `JWT_SECRET` to a strong, randomly generated string.
+⚠️ **IMPORTANT**: For Gmail SMTP in production, use a Google App Password and a verified sender address.
 
 ## 🚀 Running the Application
 
