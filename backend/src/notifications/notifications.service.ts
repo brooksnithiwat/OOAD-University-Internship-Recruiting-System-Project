@@ -11,13 +11,15 @@ export class NotificationsService {
     const smtpPort = process.env.SMTP_PORT;
     const smtpUser = process.env.SMTP_USER;
     const smtpPass = process.env.SMTP_PASS;
+    const smtpPortNumber = parseInt(smtpPort || '465', 10);
+    const smtpSecure = (process.env.SMTP_SECURE || '').toLowerCase() === 'true' || smtpPortNumber === 465;
 
     // Only initialize transporter if SMTP is configured
-    if (smtpHost && smtpPort && smtpUser && smtpPass) {
+    if (smtpHost && smtpUser && smtpPass) {
       this.transporter = nodemailer.createTransport({
         host: smtpHost,
-        port: parseInt(smtpPort, 10),
-        secure: parseInt(smtpPort, 10) === 465,
+        port: smtpPortNumber,
+        secure: smtpSecure,
         family: 4,
         connectionTimeout: 10000,
         greetingTimeout: 10000,
